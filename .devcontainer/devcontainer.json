@@ -1,0 +1,23 @@
+{
+  "name": "Flutter Development Environment",
+  "image": "ghcr.io/cirruslabs/flutter:latest",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Dart-Code.flutter",
+        "Dart-Code.dart-code",
+        "nash.awesome-flutter-snippets"
+      ],
+      "settings": {
+        "dart.flutterSdkPath": "/sdks/flutter",
+        "files.watcherExclude": {
+          "**/build/**": true,
+          "**/.dart_tool/**": true
+        }
+      }
+    }
+  },
+  "remoteUser": "root",
+  "postCreateCommand": "flutter doctor && flutter pub get",
+  "forwardPorts": [3000, 8080]
+}
