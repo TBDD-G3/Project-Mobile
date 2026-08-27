@@ -19,6 +19,7 @@ Category (1) ──< Budget (nhiều)
 ## 2. Chi tiết từng bảng (Drift)
 
 ### 2.1. `User`
+
 | Field | Kiểu | Ghi chú |
 |---|---|---|
 | `id` | `TEXT` (PK) | UUID |
@@ -30,6 +31,7 @@ Category (1) ──< Budget (nhiều)
 | `createdAt` | `DATETIME` | tự động tạo timestamp |
 
 ### 2.2. `Wallet`
+
 | Field | Kiểu | Ghi chú |
 |---|---|---|
 | `id` | `TEXT` (PK) | UUID |
@@ -42,6 +44,7 @@ Category (1) ──< Budget (nhiều)
 | `createdAt` | `DATETIME` | |
 
 ### 2.3. `Category` *(Member 2 sở hữu, nhưng Member 3 chỉ đọc)*
+
 | Field | Kiểu | Ghi chú |
 |---|---|---|
 | `id` | `TEXT` (PK) | UUID |
@@ -52,6 +55,7 @@ Category (1) ──< Budget (nhiều)
 | `isDefault` | `BOOLEAN` | true nếu là danh mục seed sẵn |
 
 ### 2.4. `Transaction` *(Member 2 sở hữu, Member 3 chỉ đọc)*
+
 | Field | Kiểu | Ghi chú |
 |---|---|---|
 | `id` | `TEXT` (PK) | UUID |
@@ -64,6 +68,7 @@ Category (1) ──< Budget (nhiều)
 | `toWalletId` | `TEXT` (FK → Wallet.id) | chỉ dùng khi `type = transfer` |
 
 ### 2.5. `Budget` *(Member 3 sở hữu)*
+
 | Field | Kiểu | Ghi chú |
 |---|---|---|
 | `id` | `TEXT` (PK) | UUID |
@@ -89,6 +94,7 @@ Category (1) ──< Budget (nhiều)
 | `budgetRepositoryProvider` | Member 3 | — (nội bộ) | — | `BudgetRepository` |
 
 **Quy tắc chung:**
+
 - Ai sở hữu bảng nào thì người đó viết `Repository` cho bảng đó và **công bố Provider public** để người khác dùng.
 - Không được import thẳng `AppDatabase` và query tay từ feature khác — luôn đi qua Repository/Provider đã công bố ở bảng trên, để khi đổi cấu trúc DB chỉ cần sửa 1 chỗ.
 - Nếu cần thêm Provider mới không có trong bảng này → báo Leader trong nhóm chat trước khi tạo, để tránh trùng chức năng.
