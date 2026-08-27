@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/database/app_database.dart';
 
-/// 🔒 Provider cung cấp thông tin người dùng hiện tại (Do Leader implement, Member 2, 3 dùng)
-final currentUserProvider = StateProvider<User?>((ref) {
-  // Có thể khởi tạo User mặc định hoặc load từ DB/Auth service
-  return null;
+/// 🔒 Stream lấy thông tin User hiện tại từ Database
+final currentUserProvider = StreamProvider<User?>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return (db.select(db.users)..limit(1)).watchSingleOrNull();
 });

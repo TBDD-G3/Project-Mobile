@@ -12,6 +12,7 @@ void main() {
       ProviderScope(
         overrides: [
           appDatabaseProvider.overrideWithValue(testDb),
+          databaseInitProvider.overrideWith((ref) async {}),
         ],
         child: const MyApp(),
       ),
@@ -19,8 +20,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Quản Lý Tài Chính'), findsOneWidget);
-    expect(find.text('Tổng số dư'), findsOneWidget);
+    expect(find.text('Ví & Tài Khoản'), findsOneWidget);
+    expect(find.text('Tổng tài sản hiện có'), findsOneWidget);
 
     await testDb.close();
   });

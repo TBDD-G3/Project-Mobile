@@ -8,6 +8,8 @@ import 'tables/categories.dart';
 import 'tables/transactions.dart';
 import 'tables/budgets.dart';
 
+import 'seeds/initial_seeder.dart';
+
 part 'app_database.g.dart';
 
 @DriftDatabase(tables: [Users, Wallets, Categories, Transactions, Budgets])
@@ -19,6 +21,18 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (m) async {
+        await m.createAll();
+      },
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA foreign_keys = ON');
+      },
+    );
+  }
+
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'project_mobile_db');
   }
@@ -29,4 +43,10 @@ final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
   ref.onDispose(() => db.close());
   return db;
+});
+
+/// Provider khởi tạo và seed dữ liệu ban đầu
+final databaseInitProvider = FutureProvider<void>((ref) async {
+  final db = ref.watch(appDatabaseProvider);
+  await InitialSeeder.seedDefaultData(db);
 });
