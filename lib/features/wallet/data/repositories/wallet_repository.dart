@@ -22,6 +22,11 @@ class WalletRepository {
     return _db.into(_db.wallets).insert(wallet);
   }
 
+  /// Cập nhật thông tin ví (tên, loại, màu sắc, v.v.)
+  Future<bool> updateWallet(WalletsCompanion wallet) {
+    return _db.update(_db.wallets).replace(wallet);
+  }
+
   /// CẬP NHẬT SỐ DƯ VÍ — BẮT BUỘC DÙNG METHOD NÀY KHI TẠO/SỬA/XÓA TRANSACTION
   /// [delta]: số tiền thay đổi (+ tăng tiền, - giảm tiền)
   Future<void> updateBalance(String walletId, double delta) async {

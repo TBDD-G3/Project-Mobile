@@ -34,7 +34,22 @@ class AppDatabase extends _$AppDatabase {
   }
 
   static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'project_mobile_db');
+    return driftDatabase(
+      name: 'project_mobile_db',
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.js'),
+        onResult: (result) {
+          if (result.missingFeatures.isNotEmpty) {
+            // ignore: avoid_print
+            print(
+              'Drift Web: Một số tính năng không được hỗ trợ trên trình duyệt này: '
+              '${result.missingFeatures}',
+            );
+          }
+        },
+      ),
+    );
   }
 }
 

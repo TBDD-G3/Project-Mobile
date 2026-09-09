@@ -7,7 +7,7 @@
 ## 👥 Phân chia công việc theo vai trò
 
 | Thành viên | Trách nhiệm chính | Nhánh Git |
-|---|---|---|
+| --- | --- | --- |
 | **Member 1 (Leader)** | Auth, Quản lý Ví (`Wallet`), Base Database | `feature/leader-auth-wallet` |
 | **Member 2** | Quản lý Giao dịch (`Transaction`), Danh mục (`Category`) | `feature/member2-transaction-category` |
 | **Member 3** | Quản lý Ngân sách (`Budget`), Báo cáo & Biểu đồ (`Analytics`) | `feature/member3-budget-analytics` |
@@ -40,8 +40,12 @@ dart run build_runner build --delete-conflicting-outputs
 
 ### 3. Chạy ứng dụng
 ```bash
-# Chạy trên trình duyệt Chrome hoặc Windows / Emulator
+# Chạy trên Windows hoặc Emulator:
 flutter run
+
+# Nếu chạy trên Web (Chrome), chạy lệnh setup một lần trước:
+dart run tool/setup_web.dart
+flutter run -d chrome
 ```
 
 ---

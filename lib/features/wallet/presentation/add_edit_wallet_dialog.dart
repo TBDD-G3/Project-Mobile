@@ -208,10 +208,10 @@ class _AddEditWalletDialogState extends ConsumerState<AddEditWalletDialog> {
         ),
       );
     } else {
-      // Cập nhật tên, loại, màu sắc
-      final db = ref.read(appDatabaseProvider);
-      await (db.update(db.wallets)..where((t) => t.id.equals(widget.wallet!.id))).write(
+      // Cập nhật tên, loại, màu sắc — dùng repo thay vì truy cập DB trực tiếp
+      await repo.updateWallet(
         WalletsCompanion(
+          id: drift.Value(widget.wallet!.id),
           name: drift.Value(name),
           type: drift.Value(_selectedType),
           iconCode: drift.Value(_selectedIconCode),
