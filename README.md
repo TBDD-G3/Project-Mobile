@@ -19,6 +19,7 @@
 ## 🛠️ Hướng dẫn bắt đầu cho thành viên nhóm
 
 ### 1. Cài đặt & Lấy code mới nhất
+
 ```bash
 # Checkout về nhánh develop và lấy code mới nhất
 git checkout develop
@@ -33,12 +34,14 @@ git checkout -b feature/member3-budget-analytics
 ```
 
 ### 2. Tải dependencies & Generate code
+
 ```bash
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
 ```
 
 ### 3. Chạy ứng dụng
+
 ```bash
 # Chạy trên Windows hoặc Emulator:
 flutter run
