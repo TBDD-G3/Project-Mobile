@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/database/app_database.dart';
+import '../../transaction/presentation/transaction_screen.dart';
 import '../../wallet/presentation/wallets_screen.dart';
 
 class MainNavScreen extends ConsumerStatefulWidget {
@@ -25,12 +26,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
   Widget build(BuildContext context) {
     final screens = [
       const WalletsScreen(),
-      _buildPlaceholderScreen(
-        title: 'Giao dịch (Thu / Chi)',
-        subtitle: 'Tính năng do Thành viên 2 phát triển (Ghi chép giao dịch, lọc theo danh mục)',
-        icon: Icons.swap_horiz,
-        color: Colors.orange,
-      ),
+      const TransactionsScreen(),
       _buildPlaceholderScreen(
         title: 'Ngân sách',
         subtitle: 'Tính năng do Thành viên 3 phát triển (Thiết lập hạn mức chi tiêu theo tháng)',
