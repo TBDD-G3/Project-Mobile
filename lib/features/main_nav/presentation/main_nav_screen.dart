@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/database/app_database.dart';
+import '../../analytics/presentation/analytics_screen.dart';
+import '../../budget/presentation/budget_screen.dart';
 import '../../wallet/presentation/wallets_screen.dart';
 
 class MainNavScreen extends ConsumerStatefulWidget {
@@ -17,7 +19,6 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
   @override
   void initState() {
     super.initState();
-    // Kích hoạt seeder dữ liệu ban đầu
     Future.microtask(() => ref.read(databaseInitProvider));
   }
 
@@ -31,18 +32,8 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
         icon: Icons.swap_horiz,
         color: Colors.orange,
       ),
-      _buildPlaceholderScreen(
-        title: 'Ngân sách',
-        subtitle: 'Tính năng do Thành viên 3 phát triển (Thiết lập hạn mức chi tiêu theo tháng)',
-        icon: Icons.pie_chart,
-        color: Colors.purple,
-      ),
-      _buildPlaceholderScreen(
-        title: 'Báo cáo & Phân tích',
-        subtitle: 'Tính năng do Thành viên 3 phát triển (Biểu đồ thu chi, tỷ lệ chi tiêu)',
-        icon: Icons.bar_chart,
-        color: Colors.blue,
-      ),
+      const BudgetScreen(),
+      const AnalyticsScreen(),
     ];
 
     return Scaffold(
