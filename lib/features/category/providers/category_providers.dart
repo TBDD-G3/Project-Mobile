@@ -1,28 +1,17 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../data/database/app_database.dart';
-import '../../data/database/tables/categories.dart';
-import 'category_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Giả định: `appDatabaseProvider` (Provider<AppDatabase>) đã được khai báo sẵn
-// trong dự án (thường ở app_database.dart hoặc 1 file provider dùng chung cấp
-// bởi Leader) và export được từ đường dẫn import phía trên.
+import '../../../data/database/app_database.dart';
+import '../data/repositories/category_repository.dart';
 
-part 'category_providers.g.dart';
-
-/// Provider công khai theo yêu cầu: categoryRepositoryProvider
-@riverpod
-CategoryRepository categoryRepository(CategoryRepositoryRef ref) {
+final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
   final db = ref.watch(appDatabaseProvider);
   return CategoryRepository(db);
-}
+});
 
-/// Tiện ích: expose getAll()/getById() sẵn dưới dạng provider cho UI dùng trực tiếp.
-@riverpod
-Future<List<CategoryData>> categoryList(CategoryListRef ref) {
+final categoriesProvider = FutureProvider<List<Category>>((ref) {
   return ref.watch(categoryRepositoryProvider).getAll();
-}
+});
 
-@riverpod
-Future<CategoryData?> categoryById(CategoryByIdRef ref, String id) {
+final categoryByIdProvider = FutureProvider.family<Category?, String>((ref, id) {
   return ref.watch(categoryRepositoryProvider).getById(id);
-}
+});
