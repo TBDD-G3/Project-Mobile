@@ -13,7 +13,7 @@ void main() {
     jobTitle: 'Giảng viên',
   );
 
-  print(profile.getProfileSummary());
+  debugPrint(profile.getProfileSummary());
 
   runApp(
     const ProviderScope(

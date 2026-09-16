@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../data/database/app_database.dart';
 import '../providers/budget_providers.dart';
 
 class BudgetScreen extends ConsumerStatefulWidget {
@@ -191,7 +190,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final repo = ref.read(budgetRepositoryProvider);
-          for (final row in ref.read(budgetRowsProvider((month: _selectedMonth, year: _selectedYear)).future)) {
+          final rows = await ref.read(budgetRowsProvider((month: _selectedMonth, year: _selectedYear)).future);
+
+          for (final row in rows) {
             final value = double.tryParse(_controllers[row.category.id]?.text ?? '0') ?? 0;
             await repo.upsertBudget(
               categoryId: row.category.id,
@@ -200,6 +201,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               limitAmount: value,
             );
           }
+
           ref.invalidate(budgetRowsProvider((month: _selectedMonth, year: _selectedYear)));
           ref.invalidate(budgetSummaryProvider((month: _selectedMonth, year: _selectedYear)));
           if (context.mounted) {

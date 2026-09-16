@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/database/app_database.dart';
-import '../../budget/data/repositories/budget_repository.dart';
+import '../../budget/providers/budget_providers.dart';
 
 class AnalyticsSummary {
   final double totalBudget;
   final double totalSpent;
-  final List<_CategorySpendRow> categoryRows;
+  final List<CategorySpendRow> categoryRows;
 
   const AnalyticsSummary({
     required this.totalBudget,
@@ -14,13 +14,13 @@ class AnalyticsSummary {
   });
 }
 
-class _CategorySpendRow {
+class CategorySpendRow {
   final String categoryId;
   final String name;
   final double amount;
   final String colorHex;
 
-  const _CategorySpendRow({
+  const CategorySpendRow({
     required this.categoryId,
     required this.name,
     required this.amount,
@@ -37,11 +37,11 @@ final analyticsProvider = FutureProvider.family<AnalyticsSummary, ({int month, i
     final categories = await db.select(db.categories).get();
     final categoryMap = {for (final item in categories) item.id: item};
 
-    final rows = <_CategorySpendRow>[];
+    final rows = <CategorySpendRow>[];
     for (final entry in summary.categorySpending.entries) {
       final category = categoryMap[entry.key];
       rows.add(
-        _CategorySpendRow(
+        CategorySpendRow(
           categoryId: entry.key,
           name: category?.name ?? 'Khác',
           amount: entry.value,
