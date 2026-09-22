@@ -4,6 +4,7 @@ import 'core/theme/app_theme.dart';
 import 'features/main_nav/presentation/main_nav_screen.dart';
 import 'features/budget/budget.dart' show Budget;
 import 'features/analytics/analytics.dart' show Analytics;
+//test commit
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
