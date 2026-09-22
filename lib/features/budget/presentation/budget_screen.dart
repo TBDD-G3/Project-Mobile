@@ -25,6 +25,25 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _changePeriod({int? month, int? year}) {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    _controllers.clear();
+    setState(() {
+      _selectedMonth = month ?? _selectedMonth;
+      _selectedYear = year ?? _selectedYear;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final rowsAsync = ref.watch(budgetRowsProvider((month: _selectedMonth, year: _selectedYear)));
     final summaryAsync = ref.watch(budgetSummaryProvider((month: _selectedMonth, year: _selectedYear)));
@@ -53,13 +72,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         children: [
                           Expanded(
                             child: DropdownButtonFormField<int>(
-                              value: _selectedMonth,
+                              initialValue: _selectedMonth,
                               items: List.generate(12, (index) => index + 1)
                                   .map((month) => DropdownMenuItem(value: month, child: Text('Tháng $month')))
                                   .toList(),
                               onChanged: (value) {
                                 if (value != null) {
-                                  setState(() => _selectedMonth = value);
+                                  _changePeriod(month: value);
                                 }
                               },
                             ),
@@ -67,13 +86,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: DropdownButtonFormField<int>(
-                              value: _selectedYear,
+                              initialValue: _selectedYear,
                               items: List.generate(4, (index) => DateTime.now().year - index)
                                   .map((year) => DropdownMenuItem(value: year, child: Text('$year')))
                                   .toList(),
                               onChanged: (value) {
                                 if (value != null) {
-                                  setState(() => _selectedYear = value);
+                                  _changePeriod(year: value);
                                 }
                               },
                             ),
@@ -87,7 +106,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               const SizedBox(height: 16),
               summaryAsync.when(
                 data: (summary) => Card(
-                  color: AppColors.primary.withOpacity(0.08),
+                  color: AppColors.primary.withValues(alpha: 0.08),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
@@ -144,9 +163,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                     child: Row(
                       children: [
                         CircleAvatar(
-                          backgroundColor: _colorFromHex(category.colorHex ?? '#64748B').withOpacity(0.15),
+                          backgroundColor: _colorFromHex(category.colorHex ?? '#64748B').withValues(alpha: 0.15),
                           child: Icon(
-                            IconData(category.iconCode ?? Icons.category.codePoint, fontFamily: 'MaterialIcons'),
+                            Icons.category,
                             color: _colorFromHex(category.colorHex ?? '#64748B'),
                           ),
                         ),
@@ -223,4 +242,5 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     }
     return AppColors.primary;
   }
+
 }

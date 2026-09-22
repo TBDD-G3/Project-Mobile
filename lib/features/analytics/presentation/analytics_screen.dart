@@ -5,13 +5,30 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../providers/analytics_providers.dart';
 
-class AnalyticsScreen extends ConsumerWidget {
+class AnalyticsScreen extends ConsumerStatefulWidget {
   const AnalyticsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AnalyticsScreen> createState() => _AnalyticsScreenState();
+}
+
+class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
+  late int _selectedMonth;
+  late int _selectedYear;
+
+  @override
+  void initState() {
+    super.initState();
     final now = DateTime.now();
-    final analyticsAsync = ref.watch(analyticsProvider((month: now.month, year: now.year)));
+    _selectedMonth = now.month;
+    _selectedYear = now.year;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final analyticsAsync = ref.watch(
+      analyticsProvider((month: _selectedMonth, year: _selectedYear)),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -26,6 +43,36 @@ class AnalyticsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _selectedMonth,
+                      decoration: const InputDecoration(labelText: 'Tháng'),
+                      items: List.generate(12, (index) => index + 1)
+                          .map((month) => DropdownMenuItem(value: month, child: Text('$month')))
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) setState(() => _selectedMonth = value);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _selectedYear,
+                      decoration: const InputDecoration(labelText: 'Năm'),
+                      items: List.generate(4, (index) => DateTime.now().year - index)
+                          .map((year) => DropdownMenuItem(value: year, child: Text('$year')))
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) setState(() => _selectedYear = value);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -157,7 +204,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: color.withOpacity(0.08),
+      color: color.withValues(alpha: 0.08),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
