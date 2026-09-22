@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/app_theme.dart';
-import 'features/main_nav/presentation/main_nav_screen.dart';
+//import 'features/main_nav/presentation/main_nav_screen.dart';
 import 'expense.dart';
 
 void main() {
