@@ -20,8 +20,9 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Ví & Tài Khoản'), findsOneWidget);
-    expect(find.text('Tổng tài sản hiện có'), findsOneWidget);
+    expect(find.text('Ví tiền'), findsWidgets);
+    expect(find.text('Tổng quan tài sản'), findsOneWidget);
+    expect(find.text('Chưa có ví'), findsOneWidget);
 
     await testDb.close();
   });
