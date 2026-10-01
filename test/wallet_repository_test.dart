@@ -49,7 +49,7 @@ void main() {
       expect(updated?.balance, 300000.0);
     });
 
-    test('WalletRepository updateWallet edits balance and keeps other fields', () async {
+    test('WalletRepository updateWallet edits info and keeps balance and other fields', () async {
       await InitialSeeder.seedDefaultData(db);
       final wallets = await db.select(db.wallets).get();
       final cashWallet = wallets.firstWhere((w) => w.type == 'cash');
@@ -59,7 +59,6 @@ void main() {
           id: Value(cashWallet.id),
           name: const Value('Ví tiền mặt'),
           type: const Value('cash'),
-          balance: const Value(150000.0),
           iconCode: Value(cashWallet.iconCode),
           colorHex: const Value('#2196F3'),
         ),
@@ -67,8 +66,8 @@ void main() {
 
       final updated = await walletRepo.getWalletById(cashWallet.id);
       expect(updated?.name, 'Ví tiền mặt');
-      expect(updated?.balance, 150000.0);
       expect(updated?.colorHex, '#2196F3');
+      expect(updated?.balance, cashWallet.balance);
       expect(updated?.userId, cashWallet.userId);
       expect(updated?.createdAt, cashWallet.createdAt);
     });

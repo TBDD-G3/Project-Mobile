@@ -22,8 +22,9 @@ class WalletRepository {
     return _db.into(_db.wallets).insert(wallet);
   }
 
-  /// Cập nhật thông tin ví (tên, loại, màu sắc, số dư...).
+  /// Cập nhật thông tin ví (tên, loại, màu sắc...).
   /// Chỉ các trường có trong [wallet] được ghi, các trường khác giữ nguyên.
+  /// KHÔNG dùng method này để sửa số dư — số dư luôn đi qua [updateBalance] từ Transaction.
   Future<int> updateWallet(WalletsCompanion wallet) {
     return (_db.update(_db.wallets)
           ..where((tbl) => tbl.id.equals(wallet.id.value)))
