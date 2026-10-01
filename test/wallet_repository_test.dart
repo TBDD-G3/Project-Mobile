@@ -12,7 +12,7 @@ void main() {
 
     setUp(() {
       db = AppDatabase.forTesting(NativeDatabase.memory());
-      walletRepo = WalletRepository(db);
+      walletRepo = DriftWalletRepository(db);
     });
 
     tearDown(() async {

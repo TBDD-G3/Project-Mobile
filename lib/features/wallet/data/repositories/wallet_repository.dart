@@ -1,48 +1,62 @@
 import 'package:drift/drift.dart';
 import '../../../../data/database/app_database.dart';
 
-class WalletRepository {
+abstract interface class WalletRepository {
+  Stream<List<Wallet>> watchAllWallets();
+
+  Future<Wallet?> getWalletById(String id);
+
+  Future<int> insertWallet(WalletsCompanion wallet);
+
+  Future<int> updateWallet(WalletsCompanion wallet);
+
+  Future<void> updateBalance(String walletId, double delta);
+
+  Future<int> deleteWallet(String id);
+}
+
+class DriftWalletRepository implements WalletRepository {
   final AppDatabase _db;
 
-  WalletRepository(this._db);
+  DriftWalletRepository(this._db);
 
-  /// Lấy danh sách tất cả các ví
+  @override
   Stream<List<Wallet>> watchAllWallets() {
     return _db.select(_db.wallets).watch();
   }
 
-  /// Lấy thông tin 1 ví theo ID
+  @override
   Future<Wallet?> getWalletById(String id) {
     return (_db.select(_db.wallets)..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull();
   }
 
-  /// Thêm ví mới
+  @override
   Future<int> insertWallet(WalletsCompanion wallet) {
     return _db.into(_db.wallets).insert(wallet);
   }
 
-  /// Cập nhật thông tin ví (tên, loại, màu sắc...).
-  /// Chỉ các trường có trong [wallet] được ghi, các trường khác giữ nguyên.
-  /// KHÔNG dùng method này để sửa số dư — số dư luôn đi qua [updateBalance] từ Transaction.
+  /// Chỉ ghi các trường có trong [wallet], các trường khác giữ nguyên.
+  /// KHÔNG dùng để sửa số dư — số dư luôn đi qua [updateBalance] từ Transaction.
+  @override
   Future<int> updateWallet(WalletsCompanion wallet) {
     return (_db.update(_db.wallets)
           ..where((tbl) => tbl.id.equals(wallet.id.value)))
         .write(wallet);
   }
 
-  /// CẬP NHẬT SỐ DƯ VÍ — BẮT BUỘC DÙNG METHOD NÀY KHI TẠO/SỬA/XÓA TRANSACTION
-  /// [delta]: số tiền thay đổi (+ tăng tiền, - giảm tiền)
+  /// Số dư CHỈ được thay đổi qua method này (khi tạo/sửa/xóa Transaction).
+  /// [delta]: số tiền thay đổi (+ tăng tiền, - giảm tiền).
+  @override
   Future<void> updateBalance(String walletId, double delta) async {
     final wallet = await getWalletById(walletId);
     if (wallet != null) {
-      final newBalance = wallet.balance + delta;
       await (_db.update(_db.wallets)..where((tbl) => tbl.id.equals(walletId)))
-          .write(WalletsCompanion(balance: Value(newBalance)));
+          .write(WalletsCompanion(balance: Value(wallet.balance + delta)));
     }
   }
 
-  /// Xóa ví
+  @override
   Future<int> deleteWallet(String id) {
     return (_db.delete(_db.wallets)..where((tbl) => tbl.id.equals(id))).go();
   }

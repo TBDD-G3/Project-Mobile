@@ -5,7 +5,7 @@ import '../data/repositories/wallet_repository.dart';
 /// 🔒 Provider cung cấp WalletRepository (Do Leader implement)
 final walletRepositoryProvider = Provider<WalletRepository>((ref) {
   final db = ref.watch(appDatabaseProvider);
-  return WalletRepository(db);
+  return DriftWalletRepository(db);
 });
 
 /// 🔒 Stream danh sách tất cả các ví
