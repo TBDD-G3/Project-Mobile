@@ -88,24 +88,21 @@ class _AddEditWalletDialogState extends ConsumerState<AddEditWalletDialog> {
               ),
               const SizedBox(height: 16),
 
-              // Số dư ban đầu (chỉ khi tạo mới)
-              if (!isEditing) ...[
-                TextFormField(
-                  controller: _balanceController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Số dư ban đầu (VNĐ)',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) return null;
-                    final n = double.tryParse(val.replaceAll(',', ''));
-                    if (n == null) return 'Số dư không hợp lệ';
-                    return null;
-                  },
+              TextFormField(
+                controller: _balanceController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: isEditing ? 'Số dư (VNĐ)' : 'Số dư ban đầu (VNĐ)',
+                  border: const OutlineInputBorder(),
                 ),
-                const SizedBox(height: 16),
-              ],
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) return null;
+                  final n = double.tryParse(val.replaceAll(',', ''));
+                  if (n == null || n < 0) return 'Số dư không hợp lệ';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
 
               // Loại ví
               const Text('Loại ví:', style: TextStyle(fontWeight: FontWeight.w600)),
@@ -192,28 +189,29 @@ class _AddEditWalletDialogState extends ConsumerState<AddEditWalletDialog> {
     final userAsync = ref.read(currentUserProvider);
     final userId = userAsync.value?.id ?? 'default-user';
 
+    final balance =
+        double.tryParse(_balanceController.text.trim().replaceAll(',', '')) ??
+            0.0;
+
     if (widget.wallet == null) {
-      // Tạo mới
-      final initialBalance =
-          double.tryParse(_balanceController.text.trim().replaceAll(',', '')) ?? 0.0;
       await repo.insertWallet(
         WalletsCompanion.insert(
           id: const Uuid().v4(),
           userId: userId,
           name: name,
           type: _selectedType,
-          balance: drift.Value(initialBalance),
+          balance: drift.Value(balance),
           iconCode: drift.Value(_selectedIconCode),
           colorHex: drift.Value(_selectedColorHex),
         ),
       );
     } else {
-      // Cập nhật tên, loại, màu sắc — dùng repo thay vì truy cập DB trực tiếp
       await repo.updateWallet(
         WalletsCompanion(
           id: drift.Value(widget.wallet!.id),
           name: drift.Value(name),
           type: drift.Value(_selectedType),
+          balance: drift.Value(balance),
           iconCode: drift.Value(_selectedIconCode),
           colorHex: drift.Value(_selectedColorHex),
         ),

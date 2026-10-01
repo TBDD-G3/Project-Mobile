@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:project_mobile/data/database/app_database.dart';
@@ -46,6 +47,30 @@ void main() {
       await walletRepo.updateBalance(cashWallet.id, -200000.0);
       updated = await walletRepo.getWalletById(cashWallet.id);
       expect(updated?.balance, 300000.0);
+    });
+
+    test('WalletRepository updateWallet edits balance and keeps other fields', () async {
+      await InitialSeeder.seedDefaultData(db);
+      final wallets = await db.select(db.wallets).get();
+      final cashWallet = wallets.firstWhere((w) => w.type == 'cash');
+
+      await walletRepo.updateWallet(
+        WalletsCompanion(
+          id: Value(cashWallet.id),
+          name: const Value('Ví tiền mặt'),
+          type: const Value('cash'),
+          balance: const Value(150000.0),
+          iconCode: Value(cashWallet.iconCode),
+          colorHex: const Value('#2196F3'),
+        ),
+      );
+
+      final updated = await walletRepo.getWalletById(cashWallet.id);
+      expect(updated?.name, 'Ví tiền mặt');
+      expect(updated?.balance, 150000.0);
+      expect(updated?.colorHex, '#2196F3');
+      expect(updated?.userId, cashWallet.userId);
+      expect(updated?.createdAt, cashWallet.createdAt);
     });
   });
 }
