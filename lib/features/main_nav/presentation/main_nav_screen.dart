@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/database/app_database.dart';
 import '../../wallet/presentation/wallets_screen.dart';
-import 'widgets/custom_bottom_nav_bar.dart';
 
 class MainNavScreen extends ConsumerStatefulWidget {
   const MainNavScreen({super.key});
@@ -53,9 +52,33 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
           children: screens,
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        indicatorColor: AppColors.primaryLight.withValues(alpha: 0.3),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon:
+                Icon(Icons.account_balance_wallet, color: AppColors.primaryDark),
+            label: 'Ví tiền',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long, color: Colors.orange),
+            label: 'Giao dịch',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.pie_chart_outline),
+            selectedIcon: Icon(Icons.pie_chart, color: Colors.purple),
+            label: 'Ngân sách',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.insights_outlined),
+            selectedIcon: Icon(Icons.insights, color: Colors.blue),
+            label: 'Báo cáo',
+          ),
+        ],
       ),
     );
   }

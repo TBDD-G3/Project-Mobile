@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/database/app_database.dart';
 import '../providers/wallet_providers.dart';
@@ -13,69 +14,74 @@ class WalletsScreen extends ConsumerWidget {
     final walletsAsync = ref.watch(walletsStreamProvider);
     final totalBalanceAsync = ref.watch(totalBalanceProvider);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20),
-          const Text(
-            'Ví tiền',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Tổng quan tài sản',
-            style: TextStyle(fontSize: 15, color: Colors.grey),
-          ),
-          const SizedBox(height: 24),
-          _TotalBalanceCard(totalBalanceAsync: totalBalanceAsync),
-          const SizedBox(height: 36),
-          walletsAsync.when(
-            data: (wallets) => wallets.isEmpty
-                ? const _EmptyWalletState()
-                : _WalletList(wallets: wallets),
-            loading: () => const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32.0),
-                child: CircularProgressIndicator(),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text('Thêm ví'),
+        onPressed: () => _showAddWalletDialog(context),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            const Text(
+              'Ví tiền',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
             ),
-            error: (err, _) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: Text('Lỗi tải danh sách ví: $err')),
+            const SizedBox(height: 4),
+            const Text(
+              'Tổng quan tài sản',
+              style: TextStyle(fontSize: 15, color: Colors.grey),
             ),
-          ),
-          const SizedBox(height: 32),
-          Center(
-            child: SizedBox(
-              width: 240,
-              height: 48,
-              child: OutlinedButton(
-                onPressed: () => _showAddWalletDialog(context),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.black, width: 1.2),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  'Tạo ví mới',
+            const SizedBox(height: 24),
+            _TotalBalanceBanner(totalBalanceAsync: totalBalanceAsync),
+            const SizedBox(height: 36),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Danh sách ví của bạn',
                   style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 15,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
                   ),
                 ),
+                TextButton.icon(
+                  onPressed: () => _showAddWalletDialog(context),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Thêm mới'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            walletsAsync.when(
+              data: (wallets) => wallets.isEmpty
+                  ? const _EmptyWalletState()
+                  : _WalletList(wallets: wallets),
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              error: (err, _) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Center(child: Text('Lỗi tải danh sách ví: $err')),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-        ],
+            const SizedBox(height: 88),
+          ],
+        ),
       ),
     );
   }
@@ -88,10 +94,10 @@ class WalletsScreen extends ConsumerWidget {
   }
 }
 
-class _TotalBalanceCard extends StatelessWidget {
+class _TotalBalanceBanner extends StatelessWidget {
   final AsyncValue<double> totalBalanceAsync;
 
-  const _TotalBalanceCard({required this.totalBalanceAsync});
+  const _TotalBalanceBanner({required this.totalBalanceAsync});
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +105,7 @@ class _TotalBalanceCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F1F4),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -110,7 +116,7 @@ class _TotalBalanceCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF6B7280),
+              color: Colors.white70,
             ),
           ),
           const SizedBox(height: 12),
@@ -120,20 +126,23 @@ class _TotalBalanceCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             loading: () => const SizedBox(
               height: 38,
               width: 38,
-              child: CircularProgressIndicator(strokeWidth: 2),
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
             ),
             error: (err, _) => const Text(
               '—',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
           ),
