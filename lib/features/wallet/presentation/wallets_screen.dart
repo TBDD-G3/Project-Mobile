@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/database/app_database.dart';
+import '../../generics_demo/generic_demo_screen.dart';
 import '../providers/wallet_providers.dart';
 import 'add_edit_wallet_dialog.dart';
 
@@ -28,19 +29,45 @@ class WalletsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
-            const Text(
-              'Ví tiền',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Tổng quan tài sản',
-              style: TextStyle(fontSize: 15, color: Colors.grey),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Ví tiền',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Tổng quan tài sản',
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                  ],
+                ),
+                ActionChip(
+                  avatar: const Icon(Icons.data_object, size: 18, color: Colors.teal),
+                  label: const Text(
+                    'Generics Demo',
+                    style: TextStyle(fontWeight: FontWeight.w600, color: Colors.teal),
+                  ),
+                  side: BorderSide(color: Colors.teal.shade200),
+                  backgroundColor: Colors.teal.shade50,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const GenericDemoScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 24),
             _TotalBalanceBanner(totalBalanceAsync: totalBalanceAsync),
