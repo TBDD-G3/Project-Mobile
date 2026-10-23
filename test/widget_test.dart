@@ -1,18 +1,30 @@
-import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:project_mobile/data/database/app_database.dart';
+import 'package:project_mobile/core/firebase/firebase_providers.dart';
+import 'package:project_mobile/data/firestore/models/user.dart';
+import 'package:project_mobile/features/auth/providers/auth_providers.dart';
+import 'package:project_mobile/features/wallet/data/repositories/mock_wallet_repository.dart';
+import 'package:project_mobile/features/wallet/providers/wallet_providers.dart';
 import 'package:project_mobile/main.dart';
 
 void main() {
-  testWidgets('App smoke test', (WidgetTester tester) async {
-    final testDb = AppDatabase.forTesting(NativeDatabase.memory());
-
+  testWidgets('App smoke test — chế độ mock hiển thị danh sách ví', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          appDatabaseProvider.overrideWithValue(testDb),
-          databaseInitProvider.overrideWith((ref) async {}),
+          walletRepositoryProvider.overrideWithValue(MockWalletRepository.seeded()),
+          currentUserProvider.overrideWith(
+            (ref) => Stream.value(
+              AppUser(
+                id: 'mock-user',
+                email: 'user@projectmobile.local',
+                displayName: 'Người dùng',
+                currencyCode: 'VND',
+                createdAt: DateTime(2024, 1, 1),
+              ),
+            ),
+          ),
+          firebaseSeedProvider.overrideWith((ref) async {}),
         ],
         child: const MyApp(),
       ),
@@ -22,8 +34,8 @@ void main() {
 
     expect(find.text('Ví tiền'), findsWidgets);
     expect(find.text('Tổng quan tài sản'), findsOneWidget);
-    expect(find.text('Chưa có ví'), findsOneWidget);
-
-    await testDb.close();
+    expect(find.text('Tiền mặt'), findsWidgets);
+    expect(find.text('Vietcombank'), findsOneWidget);
+    expect(find.text('MoMo'), findsOneWidget);
   });
 }
