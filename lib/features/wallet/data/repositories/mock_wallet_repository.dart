@@ -1,7 +1,10 @@
 import 'dart:async';
-import '../../../../data/database/app_database.dart';
+
+import '../../../../data/firestore/models/wallet.dart';
 import 'wallet_repository.dart';
 
+/// Repository ví chạy trên bộ nhớ (in-memory) — dùng cho chế độ mock
+/// và kiểm thử khi không có kết nối Firebase.
 class MockWalletRepository implements WalletRepository {
   MockWalletRepository([List<Wallet>? initial]) : _wallets = [...?initial];
 
@@ -59,19 +62,17 @@ class MockWalletRepository implements WalletRepository {
   }
 
   @override
-  Future<int> insertWallet(WalletsCompanion wallet) async {
-    _wallets.add(_merge(wallet, null));
+  Future<void> insertWallet(Wallet wallet) async {
+    _wallets.add(wallet);
     _emit();
-    return 1;
   }
 
   @override
-  Future<int> updateWallet(WalletsCompanion wallet) async {
-    final index = _wallets.indexWhere((w) => w.id == wallet.id.value);
-    if (index == -1) return 0;
-    _wallets[index] = _merge(wallet, _wallets[index]);
+  Future<void> updateWallet(Wallet wallet) async {
+    final index = _wallets.indexWhere((w) => w.id == wallet.id);
+    if (index == -1) return;
+    _wallets[index] = wallet;
     _emit();
-    return 1;
   }
 
   @override
@@ -79,42 +80,14 @@ class MockWalletRepository implements WalletRepository {
     final index = _wallets.indexWhere((w) => w.id == walletId);
     if (index == -1) return;
     final old = _wallets[index];
-    _wallets[index] = Wallet(
-      id: old.id,
-      userId: old.userId,
-      name: old.name,
-      type: old.type,
-      balance: old.balance + delta,
-      iconCode: old.iconCode,
-      colorHex: old.colorHex,
-      createdAt: old.createdAt,
-    );
+    _wallets[index] = old.copyWith(balance: old.balance + delta);
     _emit();
   }
 
   @override
-  Future<int> deleteWallet(String id) async {
+  Future<void> deleteWallet(String id) async {
     final before = _wallets.length;
     _wallets.removeWhere((w) => w.id == id);
-    final removed = before - _wallets.length;
-    if (removed > 0) _emit();
-    return removed;
-  }
-
-  Wallet _merge(WalletsCompanion c, Wallet? fallback) {
-    return Wallet(
-      id: c.id.present ? c.id.value : (fallback?.id ?? ''),
-      userId: c.userId.present
-          ? c.userId.value
-          : (fallback?.userId ?? 'mock-user'),
-      name: c.name.present ? c.name.value : (fallback?.name ?? ''),
-      type: c.type.present ? c.type.value : (fallback?.type ?? 'cash'),
-      balance: c.balance.present ? c.balance.value : (fallback?.balance ?? 0),
-      iconCode: c.iconCode.present ? c.iconCode.value : fallback?.iconCode,
-      colorHex: c.colorHex.present ? c.colorHex.value : fallback?.colorHex,
-      createdAt: c.createdAt.present
-          ? c.createdAt.value
-          : (fallback?.createdAt ?? DateTime.now()),
-    );
+    if (_wallets.length != before) _emit();
   }
 }

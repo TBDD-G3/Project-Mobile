@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../data/database/app_database.dart';
+import '../../../core/firebase/firebase_providers.dart';
 import '../../wallet/presentation/wallets_screen.dart';
 
 class MainNavScreen extends ConsumerStatefulWidget {
@@ -17,7 +17,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(databaseInitProvider));
+    Future.microtask(() => ref.read(firebaseSeedProvider));
   }
 
   @override

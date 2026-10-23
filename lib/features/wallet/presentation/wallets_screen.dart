@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../data/database/app_database.dart';
+import '../../../data/firestore/models/wallet.dart';
 import '../../generics_demo/generic_demo_screen.dart';
 import '../providers/wallet_providers.dart';
 import 'add_edit_wallet_dialog.dart';
@@ -368,8 +368,16 @@ class _WalletCard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
               final repo = ref.read(walletRepositoryProvider);
-              await repo.deleteWallet(wallet.id);
-              if (ctx.mounted) Navigator.pop(ctx);
+              try {
+                await repo.deleteWallet(wallet.id);
+                if (ctx.mounted) Navigator.pop(ctx);
+              } catch (e) {
+                if (ctx.mounted) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    SnackBar(content: Text('Lỗi khi xóa ví: $e')),
+                  );
+                }
+              }
             },
             child: const Text('Xóa', style: TextStyle(color: Colors.white)),
           ),

@@ -1,9 +1,8 @@
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../data/database/app_database.dart';
+import '../../../data/firestore/models/wallet.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/wallet_providers.dart';
 
@@ -192,33 +191,41 @@ class _AddEditWalletDialogState extends ConsumerState<AddEditWalletDialog> {
     final userAsync = ref.read(currentUserProvider);
     final userId = userAsync.value?.id ?? 'default-user';
 
-    if (widget.wallet == null) {
-      final initialBalance =
-          double.tryParse(_balanceController.text.trim().replaceAll(',', '')) ??
-              0.0;
-      await repo.insertWallet(
-        WalletsCompanion.insert(
-          id: const Uuid().v4(),
-          userId: userId,
-          name: name,
-          type: _selectedType,
-          balance: drift.Value(initialBalance),
-          iconCode: drift.Value(_selectedIconCode),
-          colorHex: drift.Value(_selectedColorHex),
-        ),
-      );
-    } else {
-      await repo.updateWallet(
-        WalletsCompanion(
-          id: drift.Value(widget.wallet!.id),
-          name: drift.Value(name),
-          type: drift.Value(_selectedType),
-          iconCode: drift.Value(_selectedIconCode),
-          colorHex: drift.Value(_selectedColorHex),
-        ),
-      );
-    }
+    try {
+      if (widget.wallet == null) {
+        final initialBalance =
+            double.tryParse(_balanceController.text.trim().replaceAll(',', '')) ??
+                0.0;
+        await repo.insertWallet(
+          Wallet(
+            id: const Uuid().v4(),
+            userId: userId,
+            name: name,
+            type: _selectedType,
+            balance: initialBalance,
+            iconCode: _selectedIconCode,
+            colorHex: _selectedColorHex,
+            createdAt: DateTime.now(),
+          ),
+        );
+      } else {
+        await repo.updateWallet(
+          widget.wallet!.copyWith(
+            name: name,
+            type: _selectedType,
+            iconCode: _selectedIconCode,
+            colorHex: _selectedColorHex,
+          ),
+        );
+      }
 
-    if (mounted) Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi khi lưu ví: $e')),
+        );
+      }
+    }
   }
 }

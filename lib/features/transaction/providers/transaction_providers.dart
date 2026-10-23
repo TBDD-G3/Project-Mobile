@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/database/app_database.dart';
+import '../../../data/firestore/models/transaction.dart';
 
 /// 📌 Member 2 implement: Lấy danh sách giao dịch theo tháng/năm
 /// Member 3 dùng để vẽ biểu đồ xu hướng
