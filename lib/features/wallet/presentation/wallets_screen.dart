@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/amount_text.dart';
+import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/insight_card.dart';
+import '../../../core/widgets/pastel_tile.dart';
+import '../../../core/widgets/section_header.dart';
 import '../../../data/firestore/models/wallet.dart';
 import '../../generics_demo/generic_demo_screen.dart';
 import '../providers/wallet_providers.dart';
-import 'add_edit_wallet_dialog.dart';
+import 'add_edit_wallet_sheet.dart';
 
+/// Màn hình Ví tiền — restyle theo ngôn ngữ thiết kế Agoda:
+/// card tổng số dư lớn, lưới hero pastel 2 lớn + 3 nhỏ, rail danh mục,
+/// card insight, danh sách ví dạng card hairline, giao dịch hôm nay.
 class WalletsScreen extends ConsumerWidget {
   const WalletsScreen({super.key});
 
@@ -16,84 +25,51 @@ class WalletsScreen extends ConsumerWidget {
     final totalBalanceAsync = ref.watch(totalBalanceProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
         icon: const Icon(Icons.add),
-        label: const Text('Thêm ví'),
-        onPressed: () => _showAddWalletDialog(context),
+        label: const Text(
+          'Thêm ví',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        onPressed: () => _showAddWalletSheet(context),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Ví tiền',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Tổng quan tài sản',
-                      style: TextStyle(fontSize: 15, color: Colors.grey),
-                    ),
-                  ],
-                ),
-                ActionChip(
-                  avatar: const Icon(Icons.data_object, size: 18, color: Colors.teal),
-                  label: const Text(
-                    'Generics Demo',
-                    style: TextStyle(fontWeight: FontWeight.w600, color: Colors.teal),
-                  ),
-                  side: BorderSide(color: Colors.teal.shade200),
-                  backgroundColor: Colors.teal.shade50,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const GenericDemoScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
+            _TotalBalanceCard(totalBalanceAsync: totalBalanceAsync),
+            const SizedBox(height: 20),
+            const SectionHeader(title: 'Tính năng nhanh'),
+            const SizedBox(height: 12),
+            _buildHeroGrid(),
+            const SizedBox(height: 12),
+            _buildCategoryRail(),
+            const SizedBox(height: 20),
+            const InsightCard(
+              message:
+                  'Bạn đã chi nhiều hơn 18% so với tháng trước. Hãy kiểm tra ngân sách các danh mục.',
             ),
             const SizedBox(height: 24),
-            _TotalBalanceBanner(totalBalanceAsync: totalBalanceAsync),
-            const SizedBox(height: 36),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Danh sách ví của bạn',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () => _showAddWalletDialog(context),
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Thêm mới'),
-                ),
-              ],
+            SectionHeader(
+              title: 'Ví của bạn',
+              actionLabel: 'Thêm mới',
+              onAction: () => _showAddWalletSheet(context),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             walletsAsync.when(
               data: (wallets) => wallets.isEmpty
-                  ? const _EmptyWalletState()
+                  ? EmptyState(
+                      icon: Icons.account_balance_wallet_outlined,
+                      title: 'Chưa có ví',
+                      subtitle: 'Tạo ví đầu tiên để bắt đầu quản lý chi tiêu.',
+                      actionLabel: 'Thêm ví',
+                      onAction: () => _showAddWalletSheet(context),
+                    )
                   : _WalletList(wallets: wallets),
               loading: () => const Center(
                 child: Padding(
@@ -106,34 +82,185 @@ class WalletsScreen extends ConsumerWidget {
                 child: Center(child: Text('Lỗi tải danh sách ví: $err')),
               ),
             ),
-            const SizedBox(height: 88),
+            const SizedBox(height: 24),
+            const SectionHeader(title: 'Giao dịch hôm nay'),
+            const SizedBox(height: 12),
+            const EmptyState(
+              icon: Icons.receipt_long,
+              title: 'Chưa có giao dịch hôm nay',
+              subtitle:
+                  'Tính năng Giao dịch đang được Member 2 phát triển (sẽ hiển thị ở đây).',
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: ActionChip(
+                avatar: const Icon(Icons.data_object, size: 18, color: Colors.teal),
+                label: const Text(
+                  'Generics Demo',
+                  style: TextStyle(fontWeight: FontWeight.w600, color: Colors.teal),
+                ),
+                side: BorderSide(color: Colors.teal.shade200),
+                backgroundColor: Colors.teal.shade50,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const GenericDemoScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  void _showAddWalletDialog(BuildContext context) {
-    showDialog(
+  void _showAddWalletSheet(BuildContext context, {Wallet? wallet}) {
+    showModalBottomSheet(
       context: context,
-      builder: (_) => const AddEditWalletDialog(),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppColors.radiusSheet),
+        ),
+      ),
+      builder: (_) => AddEditWalletSheet(wallet: wallet),
+    );
+  }
+
+  /// Lưới hero kiểu Agoda: 2 card lớn (Thu nhập / Chi tiêu) + 3 card nhỏ.
+  Widget _buildHeroGrid() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: PastelTile(
+                label: 'Thu nhập',
+                icon: Icons.trending_up,
+                background: AppColors.pastelIncome,
+                iconColor: const Color(0xFF7A9A2E),
+                size: const Size(double.infinity, 110),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: PastelTile(
+                label: 'Chi tiêu',
+                icon: Icons.trending_down,
+                background: AppColors.pastelExpense,
+                iconColor: const Color(0xFFC25B5B),
+                size: const Size(double.infinity, 110),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: PastelTile(
+                label: 'Chuyển tiền',
+                icon: Icons.swap_horiz,
+                background: AppColors.pastelTransfer,
+                iconColor: const Color(0xFF8E5BBF),
+                size: const Size(double.infinity, 90),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: PastelTile(
+                label: 'Ngân sách',
+                icon: Icons.pie_chart,
+                background: AppColors.pastelBudget,
+                iconColor: const Color(0xFF3E8EA8),
+                size: const Size(double.infinity, 90),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: PastelTile(
+                label: 'Tiết kiệm',
+                icon: Icons.savings,
+                background: AppColors.pastelSaving,
+                iconColor: const Color(0xFFC29A2E),
+                size: const Size(double.infinity, 90),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Rail danh mục thường dùng (tương ứng rail dịch vụ của Agoda).
+  Widget _buildCategoryRail() {
+    final categories = [
+      (Icons.restaurant, 'Ăn uống', AppColors.pastelExpense, const Color(0xFFC25B5B)),
+      (Icons.directions_car, 'Đi lại', AppColors.pastelBudget, const Color(0xFF3E8EA8)),
+      (Icons.receipt_long, 'Hóa đơn', AppColors.pastelSaving, const Color(0xFFC29A2E)),
+      (Icons.shopping_bag, 'Mua sắm', AppColors.pastelTransfer, const Color(0xFF8E5BBF)),
+      (Icons.more_horiz, 'Khác', const Color(0xFFF1F5F9), const Color(0xFF64748B)),
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(AppColors.radiusCard),
+        border: Border.all(color: AppColors.hairline),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          for (final (icon, label, bg, fg) in categories)
+            Column(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(icon, size: 22, color: fg),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
     );
   }
 }
 
-class _TotalBalanceBanner extends StatelessWidget {
+/// Card tổng số dư lớn — trung tâm của màn hình Ví tiền.
+class _TotalBalanceCard extends StatelessWidget {
   final AsyncValue<double> totalBalanceAsync;
 
-  const _TotalBalanceBanner({required this.totalBalanceAsync});
+  const _TotalBalanceCard({required this.totalBalanceAsync});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(AppColors.radiusCard),
+        border: Border.all(color: AppColors.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,87 +268,57 @@ class _TotalBalanceBanner extends StatelessWidget {
           const Text(
             'TỔNG SỐ DƯ',
             style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Colors.white70,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
+              color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           totalBalanceAsync.when(
             data: (balance) => Text(
               Formatters.formatCurrency(balance),
               style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                fontSize: 34,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+                color: AppColors.textPrimary,
               ),
             ),
             loading: () => const SizedBox(
-              height: 38,
-              width: 38,
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 2,
-              ),
+              height: 40,
+              width: 40,
+              child: CircularProgressIndicator(strokeWidth: 2),
             ),
             error: (err, _) => const Text(
               '—',
               style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                fontSize: 34,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
               ),
             ),
           ),
+          const SizedBox(height: 14),
+          // Số liệu demo tháng này — sẽ nối dữ liệu thật khi Member 2 xong Transaction.
+          const Row(
+            children: [
+              AmountText(amount: 5000000, kind: AmountKind.income, fontSize: 13),
+              SizedBox(width: 4),
+              Text(
+                'thu tháng này',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              ),
+              SizedBox(width: 16),
+              AmountText(amount: 3200000, kind: AmountKind.expense, fontSize: 13),
+              SizedBox(width: 4),
+              Text(
+                'chi tháng này',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              ),
+            ],
+          ),
         ],
-      ),
-    );
-  }
-}
-
-class _EmptyWalletState extends StatelessWidget {
-  const _EmptyWalletState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 260,
-        padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFD1D5DB)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF3F4F6),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.account_balance_wallet_outlined,
-                size: 30,
-                color: Color(0xFF6B7280),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Chưa có ví',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Tạo ví đầu tiên để bắt đầu.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -267,11 +364,11 @@ class _WalletCard extends ConsumerWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(AppColors.radiusCard),
+        border: Border.all(color: AppColors.hairline),
       ),
       child: Row(
         children: [
@@ -279,8 +376,8 @@ class _WalletCard extends ConsumerWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(iconData, color: color, size: 24),
           ),
@@ -293,13 +390,17 @@ class _WalletCard extends ConsumerWidget {
                   wallet.name,
                   style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   typeName,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -308,17 +409,24 @@ class _WalletCard extends ConsumerWidget {
             Formatters.formatCurrency(wallet.balance),
             style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
             ),
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.grey),
+            icon: const Icon(Icons.more_vert, color: AppColors.textLight),
             onSelected: (action) {
               if (action == 'edit') {
-                showDialog(
+                showModalBottomSheet(
                   context: context,
-                  builder: (_) => AddEditWalletDialog(wallet: wallet),
+                  isScrollControlled: true,
+                  backgroundColor: Colors.white,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(AppColors.radiusSheet),
+                    ),
+                  ),
+                  builder: (_) => AddEditWalletSheet(wallet: wallet),
                 );
               } else if (action == 'delete') {
                 _confirmDeleteWallet(context, ref);
