@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/firebase/firebase_providers.dart';
 import 'core/theme/app_theme.dart';
 import 'data/firestore/models/user.dart';
+import 'features/auth/presentation/auth_gate.dart';
 import 'features/auth/providers/auth_providers.dart';
-import 'features/main_nav/presentation/main_nav_screen.dart';
 import 'features/wallet/data/repositories/mock_wallet_repository.dart';
 import 'features/wallet/providers/wallet_providers.dart';
 import 'firebase_options.dart';
@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
       title: 'Expense Tracker App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const MainNavScreen(),
+      home: const AuthGate(),
     );
   }
 }

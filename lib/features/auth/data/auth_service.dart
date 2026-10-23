@@ -41,6 +41,11 @@ class AuthService {
     return auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
+  /// Gửi email đặt lại mật khẩu (chức năng "Quên mật khẩu").
+  Future<void> sendPasswordReset(String email) {
+    return auth.sendPasswordResetEmail(email: email);
+  }
+
   /// Đăng xuất.
   Future<void> signOut() {
     return auth.signOut();
