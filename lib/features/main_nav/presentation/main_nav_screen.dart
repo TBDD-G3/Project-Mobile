@@ -5,11 +5,20 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/firebase/firebase_providers.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/bubble_bottom_nav.dart';
+import '../../analytics/presentation/analytics_screen.dart';
+import '../../budget/presentation/budgets_screen.dart';
+import '../../transaction/presentation/transactions_screen.dart';
 import '../../wallet/presentation/wallets_screen.dart';
 import '../../wallet/providers/wallet_providers.dart';
 
-/// Shell chung của toàn app (layout tổng thể — Câu 5 đề bài):
-/// AppBar tên app + chip số dư, nội dung 4 tab, bottom nav bong bóng kiểu Agoda.
+/// 🔒 Shell chung cố định của toàn app:
+/// AppBar tên app + chip số dư, nội dung 4 tab đã gắn sẵn màn hình của từng thành viên,
+/// bottom nav bong bóng kiểu Agoda.
+///
+/// ⚠️ CÁC THÀNH VIÊN KHÔNG SỬA FILE NÀY.
+/// - Member 1 (Leader): làm việc trong `lib/features/wallet/` & `lib/features/auth/`
+/// - Member 2 (Hải Đăng): làm việc trong `lib/features/transaction/` & `lib/features/category/`
+/// - Member 3: làm việc trong `lib/features/budget/` & `lib/features/analytics/`
 class MainNavScreen extends ConsumerStatefulWidget {
   const MainNavScreen({super.key});
 
@@ -28,26 +37,11 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screens = [
-      const WalletsScreen(),
-      _buildPlaceholder(
-        title: 'Giao dịch (Thu / Chi)',
-        subtitle: 'Tính năng do Thành viên 2 phát triển (Ghi chép giao dịch, lọc theo danh mục)',
-        icon: Icons.swap_horiz,
-        color: AppColors.pastelExpense,
-      ),
-      _buildPlaceholder(
-        title: 'Ngân sách',
-        subtitle: 'Tính năng do Thành viên 3 phát triển (Thiết lập hạn mức chi tiêu theo tháng)',
-        icon: Icons.pie_chart,
-        color: AppColors.pastelBudget,
-      ),
-      _buildPlaceholder(
-        title: 'Báo cáo & Phân tích',
-        subtitle: 'Tính năng do Thành viên 3 phát triển (Biểu đồ thu chi, tỷ lệ chi tiêu)',
-        icon: Icons.bar_chart,
-        color: AppColors.pastelTransfer,
-      ),
+    const screens = [
+      WalletsScreen(),
+      TransactionsScreen(),
+      BudgetsScreen(),
+      AnalyticsScreen(),
     ];
 
     final totalBalance = ref.watch(totalBalanceProvider).value ?? 0.0;
@@ -90,52 +84,6 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
             label: 'Báo cáo',
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Icon(icon, size: 36, color: Colors.black45),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
