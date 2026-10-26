@@ -4,10 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/empty_state.dart';
 
-/// 📌 Màn hình Giao dịch (Thu / Chi / Chuyển khoản) — Phụ trách bởi Thành viên 2 (Hải Đăng).
-///
-/// Đã được gắn cố định vào Tab 1 của `MainNavScreen`.
-/// Thành viên 2 chỉ cần code trực tiếp giao diện trong file này (không cần sửa `main_nav_screen.dart`).
+/// Màn giao dịch thu/chi/chuyển khoản. Thành viên 2 (Hải Đăng) phụ trách.
+/// Đã gắn vào tab 1 sẵn, sửa trực tiếp trong file này, không cần đụng
+/// `main_nav_screen.dart`.
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
 

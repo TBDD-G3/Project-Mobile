@@ -4,10 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/empty_state.dart';
 
-/// 📌 Màn hình Báo cáo & Phân tích (Biểu đồ fl_chart) — Phụ trách bởi Thành viên 3.
-///
-/// Đã được gắn cố định vào Tab 3 của `MainNavScreen`.
-/// Thành viên 3 chỉ cần code trực tiếp giao diện trong file này (không cần sửa `main_nav_screen.dart`).
+/// Màn báo cáo + biểu đồ (fl_chart). Thành viên 3 phụ trách.
+/// File này đã gắn vào tab 3, sửa trực tiếp ở đây, không cần đụng
+/// `main_nav_screen.dart`.
 class AnalyticsScreen extends ConsumerWidget {
   const AnalyticsScreen({super.key});
 

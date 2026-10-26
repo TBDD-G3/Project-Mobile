@@ -1,19 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Ví tiền — Firestore Document model.
-///
-/// Đây là tầng "ORM" giữa Document của Firebase Firestore và đối tượng
-/// trong ứng dụng (Câu 7 đề bài): [fromDocument] ánh xạ document → object,
-/// [toDocument] ánh xạ object → document.
+/// Ví tiền, mỗi ví là một Document trong Firestore.
+/// [fromDocument] và [toDocument] là phần ORM của Câu 7.
 class Wallet {
   final String id;
   final String userId;
   final String name;
 
-  /// 'cash' | 'bank' | 'ewallet'
+  /// 'cash', 'bank' hoặc 'ewallet'
   final String type;
 
-  /// Số dư luôn cập nhật qua Transaction (`updateBalance`), không sửa tay trong UI.
+  /// Số dư chỉ đổi qua `updateBalance` lúc thêm/sửa/xóa giao dịch, UI không sửa tay.
   final double balance;
   final int? iconCode;
   final String? colorHex;

@@ -1,10 +1,7 @@
 import '../../../../data/firestore/models/transaction.dart';
 
-/// 🔒 Hợp đồng dữ liệu cố định của Giao dịch (Transaction).
-///
-/// - Member 2 implement `FirestoreTransactionRepository` từ interface này.
-/// - Khi thêm/xóa giao dịch, Member 2 gọi `walletRepository.updateBalance(walletId, delta)`
-///   để cập nhật số dư ví.
+/// Interface dữ liệu Giao dịch. Member 2 implement bản Firestore.
+/// Nhớ gọi `walletRepository.updateBalance(walletId, delta)` mỗi khi thêm/xóa giao dịch.
 abstract interface class TransactionRepository {
   Stream<List<Transaction>> watchTransactionsByMonth(int month, int year);
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
-/// Card insight kiểu Agoda: thông điệp ngắn + link hành động màu xanh
-/// `#2067DA` (tương ứng card coupon `Up to 18% off ... → Claim`).
+/// Card gợi ý kiểu Agoda: một câu ngắn kèm link xanh `#2067DA` bên phải
+/// (giống card coupon `Up to 18% off ... → Claim`).
 class InsightCard extends StatelessWidget {
   final String message;
   final String actionLabel;

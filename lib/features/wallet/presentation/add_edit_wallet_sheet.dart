@@ -8,8 +8,8 @@ import '../../../data/firestore/models/wallet.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/wallet_providers.dart';
 
-/// Bottom sheet Thêm/Sửa ví (theo wireframe: Tên ví, Loại ví, Số dư ban đầu,
-/// chọn màu) — có nút đóng (X) đóng vai trò back, nút Lưu full-width.
+/// Bottom sheet thêm/sửa ví: tên ví, loại ví, số dư ban đầu, chọn màu.
+/// Có nút X thay cho nút back, nút Lưu full-width ở dưới.
 class AddEditWalletSheet extends ConsumerStatefulWidget {
   final Wallet? wallet;
 

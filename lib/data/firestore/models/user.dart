@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Người dùng — profile lưu trong collection `users` (id = Firebase Auth uid).
-///
-/// Mật khẩu KHÔNG lưu ở đây: Firebase Authentication đảm nhiệm việc
-/// xác thực, document này chỉ chứa thông tin hồ sơ.
+/// Hồ sơ người dùng, id chính là uid bên Firebase Auth.
+/// Mật khẩu không lưu ở đây vì Firebase Auth lo phần xác thực rồi.
 class AppUser {
   final String id;
   final String email;

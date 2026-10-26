@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Giao dịch thu/chi/chuyển khoản — Firestore Document model (Member 2).
+/// Giao dịch thu/chi/chuyển khoản (Member 2 phụ trách).
 class Transaction {
   final String id;
   final String userId;
   final String walletId;
   final String? categoryId;
 
-  /// 'income' | 'expense' | 'transfer'
+  /// 'income', 'expense' hoặc 'transfer'
   final String type;
 
-  /// Luôn dương; dấu +/- do [type] quyết định.
+  /// Luôn là số dương, dấu +/- do [type] quyết định.
   final double amount;
   final DateTime date;
   final String? note;

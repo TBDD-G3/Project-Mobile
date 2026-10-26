@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import '../firestore_collections.dart';
 import '../models/category.dart';
 
-/// Seeder dữ liệu mặc định lên Firestore.
-///
-/// Idempotent: dùng id cố định cho các danh mục mặc định nên gọi nhiều lần
-/// không tạo dữ liệu trùng.
+/// Seed dữ liệu mặc định lên Firestore. Dùng id cố định nên gọi nhiều lần
+/// cũng không tạo danh mục trùng.
 class InitialSeeder {
-  /// Danh mục chi tiêu mặc định (Expense)
+  /// Danh mục chi mặc định.
   static final List<Category> defaultExpenses = <Category>[
     Category(
       id: 'cat-exp-an-uong',
@@ -77,7 +75,7 @@ class InitialSeeder {
     ),
   ];
 
-  /// Danh mục thu nhập mặc định (Income)
+  /// Danh mục thu mặc định.
   static final List<Category> defaultIncomes = <Category>[
     Category(
       id: 'cat-inc-luong',
@@ -121,7 +119,7 @@ class InitialSeeder {
     ),
   ];
 
-  /// Toàn bộ 13 danh mục mặc định.
+  /// Gộp cả 13 danh mục mặc định.
   static List<Category> get defaultCategories => [
         ...defaultExpenses,
         ...defaultIncomes,

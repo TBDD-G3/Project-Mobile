@@ -13,9 +13,8 @@ import '../../generics_demo/generic_demo_screen.dart';
 import '../providers/wallet_providers.dart';
 import 'add_edit_wallet_sheet.dart';
 
-/// Màn hình Ví tiền — restyle theo ngôn ngữ thiết kế Agoda:
-/// card tổng số dư lớn, lưới hero pastel 2 lớn + 3 nhỏ, rail danh mục,
-/// card insight, danh sách ví dạng card hairline, giao dịch hôm nay.
+/// Màn ví tiền, style theo Agoda: card tổng số dư, lưới pastel 2 lớn 3 nhỏ,
+/// rail danh mục, card insight, danh sách ví và giao dịch hôm nay.
 class WalletsScreen extends ConsumerWidget {
   const WalletsScreen({super.key});
 
@@ -131,7 +130,7 @@ class WalletsScreen extends ConsumerWidget {
     );
   }
 
-  /// Lưới hero kiểu Agoda: 2 card lớn (Thu nhập / Chi tiêu) + 3 card nhỏ.
+  /// Lưới 2 card lớn (thu nhập / chi tiêu) + 3 card nhỏ kiểu Agoda.
   Widget _buildHeroGrid() {
     return Column(
       children: [
@@ -196,7 +195,7 @@ class WalletsScreen extends ConsumerWidget {
     );
   }
 
-  /// Rail danh mục thường dùng (tương ứng rail dịch vụ của Agoda).
+  /// Rail danh mục hay dùng (giống rail dịch vụ của Agoda).
   Widget _buildCategoryRail() {
     final categories = [
       (Icons.restaurant, 'Ăn uống', AppColors.pastelExpense, const Color(0xFFC25B5B)),
@@ -246,7 +245,7 @@ class WalletsScreen extends ConsumerWidget {
   }
 }
 
-/// Card tổng số dư lớn — trung tâm của màn hình Ví tiền.
+/// Card tổng số dư, phần nổi nhất của màn ví tiền.
 class _TotalBalanceCard extends StatelessWidget {
   final AsyncValue<double> totalBalanceAsync;
 
@@ -300,7 +299,7 @@ class _TotalBalanceCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          // Số liệu demo tháng này — sẽ nối dữ liệu thật khi Member 2 xong Transaction.
+          // Số liệu demo tháng này, nối dữ liệu thật khi Member 2 xong Transaction.
           const Row(
             children: [
               AmountText(amount: 5000000, kind: AmountKind.income, fontSize: 13),

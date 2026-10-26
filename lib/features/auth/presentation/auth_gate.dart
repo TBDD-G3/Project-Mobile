@@ -5,8 +5,8 @@ import '../../main_nav/presentation/main_nav_screen.dart';
 import '../providers/auth_providers.dart';
 import 'login_screen.dart';
 
-/// Cổng xác thực: chưa đăng nhập → màn hình Đăng nhập;
-/// đã đăng nhập → màn hình chính. Lắng nghe trạng thái theo thời gian thực.
+/// Chưa đăng nhập thì hiện màn Đăng nhập, đăng nhập rồi thì vào màn chính.
+/// Nghe trạng thái realtime nên không phải tự điều hướng.
 class AuthGate extends ConsumerWidget {
   const AuthGate({super.key});
 

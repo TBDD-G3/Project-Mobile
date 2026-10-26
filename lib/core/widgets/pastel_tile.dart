@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
-/// Tile pastel kiểu Agoda: nền pastel, label đen đậm canh trên-trái,
-/// icon minh họa lớn "tràn mép" góc dưới-phải.
+/// Tile nền pastel kiểu Agoda: chữ đậm ở góc trên trái,
+/// icon lớn tràn ra mép dưới phải.
 class PastelTile extends StatelessWidget {
   final String label;
   final IconData icon;

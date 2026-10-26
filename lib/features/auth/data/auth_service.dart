@@ -4,8 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart' as fa;
 import '../../../../data/firestore/firestore_collections.dart';
 import '../../../../data/firestore/models/user.dart';
 
-/// Dịch vụ xác thực: Firebase Authentication (email/password) +
-/// lưu hồ sơ người dùng vào collection `users` của Firestore.
+/// Xác thực bằng Firebase Auth (email/password) và lưu hồ sơ vào `users`.
 class AuthService {
   final fa.FirebaseAuth auth;
   final FirebaseFirestore db;
@@ -16,7 +15,7 @@ class AuthService {
   })  : auth = auth ?? fa.FirebaseAuth.instance,
         db = db ?? FirebaseFirestore.instance;
 
-  /// Đăng ký tài khoản mới và tạo hồ sơ trong Firestore.
+  /// Tạo tài khoản mới rồi ghi hồ sơ lên Firestore.
   Future<void> register({
     required String email,
     required String password,
@@ -41,7 +40,7 @@ class AuthService {
     return auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
-  /// Gửi email đặt lại mật khẩu (chức năng "Quên mật khẩu").
+  /// Gửi mail đặt lại mật khẩu (nút Quên mật khẩu).
   Future<void> sendPasswordReset(String email) {
     return auth.sendPasswordResetEmail(email: email);
   }
@@ -51,7 +50,7 @@ class AuthService {
     return auth.signOut();
   }
 
-  /// Stream trạng thái đăng nhập, ánh xạ sang [AppUser] (đọc hồ sơ Firestore).
+  /// Stream trạng thái đăng nhập, trả về [AppUser] kèm hồ sơ trong Firestore.
   Stream<AppUser?> get authStateChanges {
     return auth.authStateChanges().asyncMap((faUser) async {
       if (faUser == null) return null;

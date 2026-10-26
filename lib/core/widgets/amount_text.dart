@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../utils/formatters.dart';
 
-/// Loại số tiền — quyết định dấu và màu hiển thị.
+/// Kiểu số tiền, quyết định dấu và màu.
 enum AmountKind { income, expense, transfer }
 
-/// Hiển thị số tiền có dấu +/− và màu theo loại.
-///
-/// Luôn đặt trên nền trắng/trung tính (không đặt trên nền pastel)
-/// để đảm bảo tương phản.
+/// Hiện số tiền kèm dấu +/− và màu theo loại.
+/// Nhớ đặt trên nền trắng, đừng đặt lên nền pastel.
 class AmountText extends StatelessWidget {
   final double amount;
   final AmountKind kind;

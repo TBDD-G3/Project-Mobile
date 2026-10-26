@@ -1,10 +1,10 @@
-/// Ngân sách theo tháng — Firestore Document model (Member 3).
+/// Ngân sách theo tháng (Member 3 phụ trách).
 class Budget {
   final String id;
   final String userId;
   final String categoryId;
 
-  /// Tháng (1–12) và năm áp dụng ngân sách.
+  /// Tháng (1-12) và năm áp dụng ngân sách.
   final int month;
   final int year;
   final double limitAmount;

@@ -1,10 +1,8 @@
 import 'Genericclass.dart';
 
-// ============================================================================
-// CÂU 2: CÁC ĐỐI TƯỢNG TRONG PROJECT KẾ THỪA TỪ Genericclass<Object>
-// ============================================================================
+// Câu 2: các đối tượng trong project đều kế thừa Genericclass<Object>.
 
-/// 1. Mô tả Ví tiền ([WalletModel]) trong ứng dụng Expense Tracker (Phụ trách bởi Leader)
+/// Ví tiền trong app (Leader phụ trách).
 class WalletModel extends Genericclass<Object> {
   double balance;
   String walletType; // Tiền mặt, Ngân hàng, Ví điện tử
@@ -36,7 +34,7 @@ class WalletModel extends Genericclass<Object> {
   }
 }
 
-/// 2. Mô tả Danh mục ([CategoryModel]) thu / chi (Phụ trách bởi Member 2)
+/// Danh mục thu/chi (Member 2 phụ trách).
 class CategoryModel extends Genericclass<Object> {
   String type; // 'expense' (chi) hoặc 'income' (thu)
   String iconName;
@@ -55,7 +53,7 @@ class CategoryModel extends Genericclass<Object> {
   bool get isIncome => type == 'income';
 }
 
-/// 3. Mô tả Giao dịch ([TransactionModel]) thu chi (Phụ trách bởi Member 2)
+/// Giao dịch thu/chi (Member 2 phụ trách).
 class TransactionModel extends Genericclass<Object> {
   double amount;
   DateTime date;
@@ -80,7 +78,7 @@ class TransactionModel extends Genericclass<Object> {
   }
 }
 
-/// 4. Mô tả Ngân sách ([BudgetModel]) chi tiêu (Phụ trách bởi Member 3)
+/// Ngân sách chi tiêu (Member 3 phụ trách).
 class BudgetModel extends Genericclass<Object> {
   double limitAmount;
   double spentAmount;
@@ -103,13 +101,8 @@ class BudgetModel extends Genericclass<Object> {
       limitAmount > 0 ? (spentAmount / limitAmount) * 100 : 0.0;
 }
 
-// ============================================================================
-// TỔNG QUÁT HÓA CODE VỚI CLASS CLASS & OBJECT CLASS (Generic Manager)
-// ============================================================================
-
-/// Lớp quản lý tổng quát [GenericEntityManager] ứng dụng `Class class` (Generics)
-/// và `Object class` để quản lý mọi đối tượng kế thừa từ [Genericclass<Object>]
-/// mà không cần viết lại mã nguồn cho từng đối tượng riêng lẻ.
+/// Quản lý chung danh sách cho mọi lớp con của [Genericclass<Object>],
+/// nên không phải viết lại manager cho từng loại đối tượng.
 class GenericEntityManager<T extends Genericclass<Object>> {
   final List<T> _items = [];
 

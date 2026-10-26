@@ -1,4 +1,4 @@
-# 🚀 Hướng dẫn công nghệ cho Member 2 & 3 — Firebase + Firestore + Riverpod
+# Hướng dẫn Firebase + Firestore + Riverpod cho Member 2 và 3
 
 > Leader viết để các bạn đồng bộ với luồng code mới. Đọc kỹ trước khi code tiếp.
 > Toàn bộ thư mục `lib/data/database/` (Drift/SQLite cũ) đã được **xóa bỏ hoàn toàn** khỏi nhánh `develop`. Chỉ sử dụng `lib/data/firestore/`.
@@ -9,13 +9,13 @@
 
 Đề bài tập lớn **Câu 7** (1 điểm): *"Kết nối cơ sở dữ liệu, thực hiện ORM (Object Related Mapping) với **Documents của Firebase**"*.
 
-Vì vậy toàn bộ dữ liệu (`AppUser`, `Wallet`, `Category`, `Transaction`, `Budget`) chuyển từ Drift/SQLite sang **Cloud Firestore**, và đăng nhập dùng **Firebase Authentication**. Code của các bạn sẽ được chấm trên phần này, nên phải thao tác đúng theo mẫu.
+Nên toàn bộ dữ liệu (`AppUser`, `Wallet`, `Category`, `Transaction`, `Budget`) giờ nằm trên **Cloud Firestore**, còn đăng nhập dùng **Firebase Authentication**. Phần này có chấm điểm nên làm đúng theo mẫu nhé.
 
 ---
 
 ## 2. Cách đồng bộ nhánh `develop` mới và chạy project
 
-⚠️ **QUAN TRỌNG**: Nhánh cũ của các bạn từ tháng 9 đang chứa code Drift/SQLite cũ. Để tránh xung đột (conflict) với code cũ, các bạn thực hiện đúng các lệnh sau:
+**Quan trọng:** nhánh cũ từ tháng 9 của các bạn vẫn còn code Drift/SQLite, nên làm đúng mấy lệnh dưới đây để khỏi bị conflict:
 
 ```bash
 # 1. Lưu tạm hoặc tạo nhánh backup từ nhánh cũ (nếu muốn giữ code UI cũ để tham khảo)
@@ -44,9 +44,9 @@ flutter run -d chrome          # hoặc chọn emulator Android
 | Firebase thật (`kUseMockData = false` — **mặc định hiện tại**) | Chạy thật, demo cuối kỳ, tích hợp dữ liệu | Có internet; config đã commit sẵn (`lib/firebase_options.dart`, `android/app/google-services.json`) — không cần tự cấu hình Firebase |
 | Mock (`true`) | Chỉnh UI offline / chạy widget test nhanh | Đổi cờ trong `lib/main.dart` — dữ liệu ví giả, không ghi Firestore |
 
-⚠️ **Không chạy trên Windows/Linux desktop nữa** — Firebase không hỗ trợ 2 nền tảng đó. Dùng Chrome hoặc emulator Android.
+**Đừng chạy trên Windows/Linux desktop nữa** vì Firebase không hỗ trợ 2 nền tảng đó. Dùng Chrome hoặc emulator Android.
 
-🔐 **Firestore rules** (file `firestore.rules`, đã deploy): mỗi user chỉ đọc/ghi Document có `userId` trùng uid đang đăng nhập. Vì vậy khi viết repository mới (Transaction, Budget) **bắt buộc** gán `userId: FirebaseAuth.instance.currentUser!.uid` khi tạo Document và `.where('userId', isEqualTo: uid)` khi đọc — nếu quên sẽ bị `PERMISSION_DENIED`.
+**Firestore rules** (file `firestore.rules`, đã deploy): mỗi user chỉ đọc/ghi Document có `userId` trùng uid đang đăng nhập. Nên khi viết repository mới (Transaction, Budget) thì **bắt buộc** gán `userId: FirebaseAuth.instance.currentUser!.uid` lúc tạo Document và `.where('userId', isEqualTo: uid)` lúc đọc, quên là bị `PERMISSION_DENIED` ngay.
 
 ---
 
@@ -86,7 +86,7 @@ final list = (await ref.get()).docs.map((d) => d.data()).toList(); // tự gọi
 
 Xem file `lib/features/wallet/data/repositories/firestore_wallet_repository.dart` và `mock_wallet_repository.dart` — đây là **mẫu chuẩn**. Các bạn viết `CategoryRepository`, `TransactionRepository`, `BudgetRepository` theo đúng cấu trúc này (interface trước, implement sau).
 
-### 3.3. Design System — giao diện theo mẫu Agoda (BẮT BUỘC làm theo)
+### 3.3. Design System — giao diện theo mẫu Agoda (làm theo cho giống nhau)
 
 Toàn bộ UI mới phải dùng **design tokens + widget có sẵn** để các màn hình của mọi người đồng nhất. Không tự chế màu/kiểu mới.
 
@@ -194,7 +194,7 @@ final categoriesStreamProvider = StreamProvider<List<Category>>((ref) {
 
 - Viết `TransactionRepository` & `FirestoreTransactionRepository`.
 - Hoàn thiện `transactionsByMonthProvider` và `transactionsByCategoryProvider` trong `lib/features/transaction/providers/transaction_providers.dart`.
-- **Khi tạo/xóa giao dịch phải cập nhật số dư ví** qua `walletRepositoryProvider` (🔒 của Leader):
+- **Khi tạo/xóa giao dịch thì phải cập nhật số dư ví** qua `walletRepositoryProvider` (của Leader):
 
 ```dart
 final walletRepo = ref.read(walletRepositoryProvider);
@@ -229,7 +229,7 @@ budgetsCollection(_db)
 ### Bước 2 — Analytics
 
 - Dùng `transactionsByMonthProvider` và `transactionsByCategoryProvider` (Member 2 cung cấp) để vẽ biểu đồ bằng `fl_chart` (đã có sẵn trong `pubspec.yaml`).
-- Dùng `totalBalanceProvider` (🔒 Leader) cho màn hình tổng quan.
+- Dùng `totalBalanceProvider` (Leader viết) cho màn hình tổng quan.
 
 ### Bước 3 — UI & Unit Test
 

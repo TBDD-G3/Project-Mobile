@@ -6,7 +6,7 @@ import 'models/transaction.dart';
 import 'models/user.dart';
 import 'models/wallet.dart';
 
-/// Tên các collection trong Firestore (tương ứng 5 bảng trước đây).
+/// Tên 5 collection bên Firestore (trước đây là 5 bảng).
 abstract final class FirestoreCollections {
   static const users = 'users';
   static const wallets = 'wallets';
@@ -15,10 +15,8 @@ abstract final class FirestoreCollections {
   static const budgets = 'budgets';
 }
 
-/// Tầng ORM: ánh xạ Document Firestore ↔ Model của ứng dụng (Câu 7 đề bài).
-///
-/// `withConverter` đảm bảo mọi thao tác đọc/ghi qua các collection này đều
-/// tự động chuyển đổi đúng kiểu dữ liệu, không thao tác `Map` thủ công.
+/// Phần ORM của Câu 7: mỗi hàm trả về collection đã gắn `withConverter`,
+/// nên đọc/ghi ra thẳng Model, không phải tự xử lý Map nữa.
 CollectionReference<AppUser> usersCollection(FirebaseFirestore db) {
   return db
       .collection(FirestoreCollections.users)

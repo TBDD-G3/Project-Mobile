@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
-/// Tiêu đề section kiểu Agoda: chữ rất đậm (w800), kèm action bên phải.
+/// Tiêu đề section: chữ rất đậm, có action bên phải nếu cần.
 class SectionHeader extends StatelessWidget {
   final String title;
   final String? actionLabel;

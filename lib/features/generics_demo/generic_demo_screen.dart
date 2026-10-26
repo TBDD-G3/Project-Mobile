@@ -13,11 +13,11 @@ class GenericDemoScreen extends StatefulWidget {
 }
 
 class _GenericDemoScreenState extends State<GenericDemoScreen> {
-  // Khởi tạo các đối tượng kế thừa từ Genericclass<Object>
+  // Tạo sẵn 2 đối tượng kế thừa Genericclass<Object>.
   late final Expense expenseItem;
   late final WalletModel walletItem;
 
-  // Sử dụng GenericEntityManager để quản lý danh sách tổng quát hóa
+  // Manager dùng chung để quản lý danh sách tổng quát hóa.
   final GenericEntityManager<Genericclass<Object>> manager =
       GenericEntityManager<Genericclass<Object>>();
 
@@ -25,7 +25,7 @@ class _GenericDemoScreenState extends State<GenericDemoScreen> {
   void initState() {
     super.initState();
 
-    // 1. Đối tượng Expense từ bài tập thực hành
+    // 1. Expense lấy từ bài thực hành.
     expenseItem = Expense(
       id: 101,
       title: 'Mua giáo trình Flutter & Dart',
@@ -34,7 +34,7 @@ class _GenericDemoScreenState extends State<GenericDemoScreen> {
       category: 'Học tập',
     );
 
-    // 2. Đối tượng WalletModel của bài tập lớn (Leader)
+    // 2. WalletModel của bài lớn (Leader làm).
     walletItem = WalletModel(
       id: 'W-01',
       name: 'Ví tiền mặt chính',
@@ -43,7 +43,7 @@ class _GenericDemoScreenState extends State<GenericDemoScreen> {
       walletType: 'Tiền mặt',
       isDefault: true,
     );
-    // Thêm tất cả vào Generic Manager để chứng minh tính tổng quát hóa
+    // Cho cả hai vào manager để thấy tính tổng quát hóa.
     manager.addAll([expenseItem, walletItem]);
   }
 

@@ -4,18 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/firestore/seed/initial_seeder.dart';
 
-/// Instance Firestore toàn cục (Câu 7: kết nối CSDL Firebase).
+/// Firestore dùng chung cho cả app (Câu 7).
 final firebaseFirestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
 });
 
-/// Instance Firebase Authentication toàn cục.
+/// Firebase Auth dùng chung.
 final firebaseAuthProvider = Provider<fa.FirebaseAuth>((ref) {
   return fa.FirebaseAuth.instance;
 });
 
-/// Seeder dữ liệu mặc định (danh mục thu/chi) lên Firestore — idempotent.
-/// Trong chế độ mock (kUseMockData = true) provider này được override no-op.
+/// Seed 13 danh mục mặc định lên Firestore. Id là id cố định nên chạy lại
+/// cũng không bị trùng; ở chế độ mock provider này được override thành no-op.
 final firebaseSeedProvider = FutureProvider<void>((ref) async {
   final db = ref.watch(firebaseFirestoreProvider);
   await InitialSeeder.seedDefaultData(db);

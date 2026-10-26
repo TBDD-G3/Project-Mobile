@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
-/// Mục tab của [BubbleBottomNav].
+/// Một tab của [BubbleBottomNav].
 class BubbleBottomNavItem {
   final IconData icon;
   final String label;
@@ -9,9 +9,8 @@ class BubbleBottomNavItem {
   const BubbleBottomNavItem({required this.icon, required this.label});
 }
 
-/// Bottom navigation kiểu Agoda: tab active nằm trong "bong bóng" xám
-/// `#EDEDED` với icon + label màu xanh primary; tab inactive chữ đen đậm,
-/// icon xám nhạt. Không dùng pill M3 nằm ngang.
+/// Bottom nav kiểu Agoda: tab đang chọn nằm trong bong bóng xám `#EDEDED`,
+/// icon và chữ màu xanh; tab còn lại chữ đậm, icon xám. Không dùng pill M3.
 class BubbleBottomNav extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
