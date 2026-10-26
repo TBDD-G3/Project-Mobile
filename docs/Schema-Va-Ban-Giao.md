@@ -1,6 +1,6 @@
 # 📋 TÀI LIỆU BÀN GIAO (v2) — Firestore Schema & Provider Convention
 
-**Người viết:** Leader (Member 1) | **Nhánh:** `feature/leader-auth-wallet-b` → sẽ merge vào `develop`
+**Người viết:** Leader (Member 1) | **Nhánh chuẩn:** `develop` (đã xóa bỏ hoàn toàn Drift/SQLite cũ)
 **Lý do đổi từ Drift/SQLite sang Firestore:** Đề bài tập lớn **Câu 7** yêu cầu "Kết nối CSDL, thực hiện ORM (Object Related Mapping) với **Documents của Firebase**" → toàn bộ tầng dữ liệu chuyển sang **Cloud Firestore**, xác thực chuyển sang **Firebase Authentication**.
 
 > ⚠️ Thành viên 2 & 3 đọc file này và file `docs/Huong-Dan-Firestore-Cho-Member.md` để biết chính xác cách thao tác dữ liệu. **Không tự ý gọi `FirebaseFirestore.instance` trực tiếp trong feature.**
@@ -19,10 +19,12 @@
 
 ---
 
-## 2. Các collection (tương ứng 5 bảng cũ)
+## 2. Các collection (5 đối tượng chính trong hệ thống)
 
 ```text
 users (1) ──< wallets (nhiều)
+users (1) ──< transactions (nhiều)
+users (1) ──< budgets (nhiều)
 wallets (1) ──< transactions (nhiều)
 categories (1) ──< transactions (nhiều)
 categories (1) ──< budgets (nhiều)
@@ -38,7 +40,7 @@ categories (1) ──< budgets (nhiều)
 | `currencyCode` | `String` | mặc định `'VND'` |
 | `createdAt` | `Timestamp` | |
 
-### 2.2. `wallets` — model `Wallet`
+### 2.2. `wallets` — model `Wallet` (`lib/data/firestore/models/wallet.dart`)
 
 | Field | Kiểu | Ghi chú |
 |---|---|---|
@@ -51,7 +53,7 @@ categories (1) ──< budgets (nhiều)
 | `colorHex` | `String?` | vd `'#4CAF50'` |
 | `createdAt` | `Timestamp` | |
 
-### 2.3. `categories` — model `Category` *(Member 2 sở hữu, Member 3 chỉ đọc)*
+### 2.3. `categories` — model `Category` (`lib/data/firestore/models/category.dart`) *(Member 2 sở hữu, Member 3 chỉ đọc)*
 
 | Field | Kiểu | Ghi chú |
 |---|---|---|
@@ -62,11 +64,12 @@ categories (1) ──< budgets (nhiều)
 | `colorHex` | `String?` | |
 | `isDefault` | `bool` | `true` = danh mục seed sẵn |
 
-### 2.4. `transactions` — model `Transaction` *(Member 2 sở hữu, Member 3 chỉ đọc)*
+### 2.4. `transactions` — model `Transaction` (`lib/data/firestore/models/transaction.dart`) *(Member 2 sở hữu, Member 3 chỉ đọc)*
 
 | Field | Kiểu | Ghi chú |
 |---|---|---|
 | `id` (Document ID) | `String` | UUID |
+| `userId` | `String` | = uid, dùng để lọc giao dịch theo người đăng nhập |
 | `walletId` | `String` | → wallets |
 | `categoryId` | `String?` | → categories; null nếu `transfer` |
 | `type` | `String` (`income` / `expense` / `transfer`) | |
@@ -75,11 +78,12 @@ categories (1) ──< budgets (nhiều)
 | `note` | `String?` | |
 | `toWalletId` | `String?` | chỉ khi `type = transfer` |
 
-### 2.5. `budgets` — model `Budget` *(Member 3 sở hữu)*
+### 2.5. `budgets` — model `Budget` (`lib/data/firestore/models/budget.dart`) *(Member 3 sở hữu)*
 
 | Field | Kiểu | Ghi chú |
 |---|---|---|
 | `id` (Document ID) | `String` | UUID |
+| `userId` | `String` | = uid, dùng để lọc ngân sách theo người đăng nhập |
 | `categoryId` | `String` | → categories |
 | `month` | `int` | 1–12 |
 | `year` | `int` | |
@@ -161,19 +165,20 @@ await walletRepo.updateBalance(walletId, delta);         // delta: + thu / - chi
 ## 5. Auth (Firebase Authentication)
 
 - `currentUserProvider` là `StreamProvider<AppUser?>` — lắng nghe trạng thái đăng nhập theo thời gian thực.
-- Màn hình đăng nhập/đăng ký do **Leader** phụ trách (sẽ có ở commit sau).
+- Màn hình đăng nhập/đăng ký do **Leader** phụ trách (đã hoàn thành).
 - Member 2/3 khi cần `userId`: `ref.watch(currentUserProvider).value?.id` (xử lý cả trường hợp null = chưa đăng nhập).
 
 ---
 
-## 6. Checklist bàn giao (Leader tick khi xong)
+## 6. Checklist bàn giao
 
 - [x] Tầng ORM Firestore (`models`, `firestore_collections`) build thành công
+- [x] Xóa toàn bộ thư mục `lib/data/database/` (Drift/SQLite cũ) và dependencies thừa
 - [x] `WalletRepository` chạy trên Firestore, giữ nguyên interface cũ
-- [x] `AuthService` (đăng ký/đăng nhập/đăng xuất) + `currentUserProvider`
+- [x] `AuthService` (đăng ký/đăng nhập/đăng xuất/quên mật khẩu) + `currentUserProvider`
+- [x] Màn hình đăng nhập/đăng ký (`LoginScreen`, `RegisterScreen`, `AuthGate`)
 - [x] Seeder 13 danh mục mặc định lên Firestore (idempotent)
 - [x] Unit test + widget test xanh (không phụ thuộc Drift)
-- [ ] Màn hình đăng nhập/đăng ký (Auth UI)
-- [ ] Member 2: CategoryRepository + TransactionRepository trên Firestore
-- [ ] Member 3: BudgetRepository + Analytics trên Firestore
-- [ ] Merge `develop`, cả nhóm build chạy được trên Chrome/emulator
+- [ ] Member 2: `CategoryRepository` + `TransactionRepository` + UI trên Firestore
+- [ ] Member 3: `BudgetRepository` + `Analytics` + UI trên Firestore
+- [ ] Merge toàn bộ vào `develop`, cả nhóm chạy kiểm thử cuối kỳ

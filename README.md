@@ -1,6 +1,6 @@
 # 📱 Project Mobile — Expense Tracker App
 
-Ứng dụng quản lý tài chính cá nhân được xây dựng bằng **Flutter**, **Riverpod** và **Drift (SQLite)**.
+Ứng dụng quản lý tài chính cá nhân được xây dựng bằng **Flutter**, **Riverpod**, **Firebase Authentication** và **Cloud Firestore (ORM Document)**.
 
 ---
 
@@ -8,47 +8,44 @@
 
 | Thành viên | Trách nhiệm chính | Nhánh Git |
 | --- | --- | --- |
-| **Member 1 (Leader)** | Auth, Quản lý Ví (`Wallet`), Base Database | `feature/leader-auth-wallet` |
-| **Member 2** | Quản lý Giao dịch (`Transaction`), Danh mục (`Category`) | `feature/member2-transaction-category` |
-| **Member 3** | Quản lý Ngân sách (`Budget`), Báo cáo & Biểu đồ (`Analytics`) | `feature/member3-budget-analytics` |
+| **Member 1 (Leader — Minh, MSSV: 22010009)** | Firebase Auth, Quản lý Ví (`Wallet`), Tầng ORM Firestore (`lib/data/firestore/`), Design System | `feature/leader-auth-wallet-b` |
+| **Member 2 (Hải Đăng, MSSV: 24100454)** | Quản lý Giao dịch (`Transaction`), Danh mục (`Category`) trên Firestore | `feature/member2-transaction-category` |
+| **Member 3 (Manx-bit)** | Quản lý Ngân sách (`Budget`), Báo cáo & Biểu đồ (`Analytics`) trên Firestore | `feature/member3-budget-analytics` |
 
-> 📖 **Quy ước Database & Provider:** Xem chi tiết tại [docs/Schema-Va-Ban-Giao.md](docs/Schema-Va-Ban-Giao.md).
+> 📖 **Tài liệu bắt buộc cho thành viên:**
+> - [docs/Huong-Dan-Firestore-Cho-Member.md](docs/Huong-Dan-Firestore-Cho-Member.md) — Hướng dẫn công nghệ Firebase + Firestore + Riverpod + Design System.
+> - [docs/Schema-Va-Ban-Giao.md](docs/Schema-Va-Ban-Giao.md) — Schema 5 Collection Firestore & Bảng quy ước Provider chuẩn.
 
 ---
 
 ## 🛠️ Hướng dẫn bắt đầu cho thành viên nhóm
 
-### 1. Cài đặt & Lấy code mới nhất
+### 1. Đồng bộ nhánh `develop` mới nhất (đã xóa bỏ hoàn toàn Drift/SQLite cũ)
 
 ```bash
-# Checkout về nhánh develop và lấy code mới nhất
+git fetch origin
 git checkout develop
-git pull origin develop
+git reset --hard origin/develop
 
-# Tạo nhánh tính năng của bạn
+# Tạo lại nhánh làm việc từ develop sạch:
 # Dành cho Member 2:
-git checkout -b feature/member2-transaction-category
+git checkout -B feature/member2-transaction-category
 
 # Dành cho Member 3:
-git checkout -b feature/member3-budget-analytics
+git checkout -B feature/member3-budget-analytics
 ```
 
-### 2. Tải dependencies & Generate code
+### 2. Tải dependencies & Chạy ứng dụng
 
 ```bash
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
+flutter run -d chrome          # hoặc chạy trên Android Emulator
 ```
 
-### 3. Chạy ứng dụng
+### 3. Chạy kiểm thử (Unit Test & Widget Test)
 
 ```bash
-# Chạy trên Windows hoặc Emulator:
-flutter run
-
-# Nếu chạy trên Web (Chrome), chạy lệnh setup một lần trước:
-dart run tool/setup_web.dart
-flutter run -d chrome
+flutter test
 ```
 
 ---
@@ -57,22 +54,26 @@ flutter run -d chrome
 
 ```text
 lib/
-├── core/                  # Màu sắc, Theme, Tiện ích (Formatters, Constants)
+├── core/                  # Màu sắc (AppColors), Theme Agoda, Firebase Providers, Widgets dùng chung
 ├── data/
-│   └── database/          # Drift Database & Schema các bảng
-├── entities/              # Lớp Generic và các Model kế thừa tổng quát hóa
-│   ├── Genericclass.dart  # [Câu 1] Lớp Genericclass<T> chuẩn bài giảng
+│   └── firestore/         # Tầng ORM với Documents của Firebase Firestore (Câu 7)
+│       ├── firestore_collections.dart # CollectionReference<T> gắn sẵn withConverter
+│       ├── models/        # 5 đối tượng ORM: AppUser, Wallet, Category, Transaction, Budget
+│       └── seed/          # InitialSeeder (13 danh mục thu/chi mặc định idempotent)
+├── entities/              # Lớp Generic và các Model kế thừa tổng quát hóa (OOP)
+│   ├── Genericclass.dart  # Lớp Genericclass<T> chuẩn bài giảng
 │   ├── generic_class.dart # Export chuẩn snake_case
-│   └── project_models.dart# [Câu 2] WalletModel, CategoryModel, BudgetModel...
-├── features/              # Phân chia theo từng tính năng
-│   ├── auth/              # Xác thực người dùng (Leader)
-│   ├── wallet/            # Quản lý ví & số dư (Leader)
-│   ├── category/          # Quản lý danh mục (Member 2)
-│   ├── transaction/       # Ghi chép giao dịch thu/chi (Member 2)
-│   ├── budget/            # Hạn mức ngân sách (Member 3)
-│   ├── analytics/         # Thống kê & Biểu đồ (Member 3)
-│   └── generics_demo/     # [Demo] Giao diện minh họa Generics Output
-└── expense.dart           # [Câu 2] Đối tượng Expense viết lại kế thừa Genericclass<Object>
+│   └── project_models.dart# WalletModel, CategoryModel, TransactionModel, BudgetModel
+├── features/              # Phân chia theo từng tính năng (3 lớp: Data -> Providers -> Presentation)
+│   ├── auth/              # Đăng nhập, Đăng ký, Quên mật khẩu, AuthGate (Leader)
+│   ├── wallet/            # Quản lý ví & số dư trên Firestore + Mock (Leader)
+│   ├── category/          # Quản lý danh mục thu/chi (Member 2)
+│   ├── transaction/       # Ghi chép giao dịch thu/chi/chuyển khoản (Member 2)
+│   ├── budget/            # Hạn mức ngân sách theo tháng (Member 3)
+│   ├── analytics/         # Thống kê & Biểu đồ fl_chart (Member 3)
+│   ├── main_nav/          # Shell điều hướng chính (BubbleBottomNav 4 tab + BalanceChip)
+│   └── generics_demo/     # Giao diện minh họa Generics Output
+└── expense.dart           # Đối tượng Expense viết lại kế thừa Genericclass<Object>
 ```
 
 ---
@@ -87,7 +88,7 @@ lib/
 
 ---
 
-### 2. Câu 1: Xây dựng đối tượng Generics miêu tả chung các đối tượng trong Project
+### 2. Xây dựng đối tượng Generics miêu tả chung các đối tượng trong Project
 * **File mã nguồn:** [lib/entities/Genericclass.dart](lib/entities/Genericclass.dart) *(export qua [lib/entities/generic_class.dart](lib/entities/generic_class.dart))*
 * **Đặc điểm thiết kế:**
   * Lớp `Genericclass<T>` tổng quát hóa kiểu dữ liệu cho 3 trường cơ sở:
@@ -120,7 +121,7 @@ class Genericclass<T> {
 
 ---
 
-### 3. Câu 2: Kế thừa (extends) & Tổng quát hóa Code trong Bài tập lớn
+### 3. Kế thừa (extends) & Tổng quát hóa Code trong Bài tập lớn
 
 #### 3.1. Viết lại đối tượng `Expense` đã có trong bài tập thực hành
 * **File mã nguồn:** [lib/expense.dart](lib/expense.dart)
@@ -151,11 +152,8 @@ class Genericclass<T> {
 * **Màn hình Demo:** [lib/features/generics_demo/generic_demo_screen.dart](lib/features/generics_demo/generic_demo_screen.dart)
   * Tái hiện màn hình **Generics Output** (tương tự trang 4 & 5 trong slide bài giảng).
   * Hiển thị trực quan dữ liệu của `Expense` và `WalletModel` (đối tượng do Leader phụ trách) cùng danh sách tổng quát hóa từ `GenericEntityManager`.
-  * **Cách mở trên ứng dụng:** Tại màn hình chính **Ví tiền**, bấm vào nút **"Generics Demo"** ở góc trên cùng bên phải.
-* **Kiểm thử tự động (Unit Test):** [test/generics_test.dart](test/generics_test.dart)
-  * Đã viết đầy đủ 4 bài test kiểm tra hoạt động của `Genericclass<T>`, kế thừa `Expense`, các Model bài tập lớn và `GenericEntityManager`.
-  * Chạy test bằng lệnh:
+* **Kiểm thử tự động (Unit Test):** [test/generics_test.dart](test/generics_test.dart) & [test/wallet_repository_test.dart](test/wallet_repository_test.dart)
+  * Chạy toàn bộ test bằng lệnh:
     ```bash
-    flutter test test/generics_test.dart
+    flutter test
     ```
-

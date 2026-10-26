@@ -20,11 +20,16 @@ class FirestoreWalletRepository implements WalletRepository {
 
   @override
   Stream<List<Wallet>> watchAllWallets() {
+    // Sắp xếp theo createdAt ở tầng Dart để tránh lỗi thiếu Composite Index
+    // khi kết hợp .where('userId') và .orderBy('createdAt') trên Firestore.
     return walletsCollection(_db)
         .where('userId', isEqualTo: _currentUserId)
-        .orderBy('createdAt')
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+        .map((snapshot) {
+          final wallets = snapshot.docs.map((doc) => doc.data()).toList();
+          wallets.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+          return wallets;
+        });
   }
 
   @override

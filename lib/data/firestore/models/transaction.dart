@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Giao dịch thu/chi/chuyển khoản — Firestore Document model (Member 2).
 class Transaction {
   final String id;
+  final String userId;
   final String walletId;
   final String? categoryId;
 
@@ -19,6 +20,7 @@ class Transaction {
 
   const Transaction({
     required this.id,
+    this.userId = '',
     required this.walletId,
     this.categoryId,
     required this.type,
@@ -35,6 +37,7 @@ class Transaction {
   factory Transaction.fromDocument(String id, Map<String, dynamic> data) {
     return Transaction(
       id: id,
+      userId: data['userId'] as String? ?? '',
       walletId: data['walletId'] as String? ?? '',
       categoryId: data['categoryId'] as String?,
       type: data['type'] as String? ?? 'expense',
@@ -47,6 +50,7 @@ class Transaction {
 
   Map<String, dynamic> toDocument() {
     return {
+      'userId': userId,
       'walletId': walletId,
       'categoryId': categoryId,
       'type': type,
@@ -55,5 +59,28 @@ class Transaction {
       'note': note,
       'toWalletId': toWalletId,
     };
+  }
+
+  Transaction copyWith({
+    String? userId,
+    String? walletId,
+    String? categoryId,
+    String? type,
+    double? amount,
+    DateTime? date,
+    String? note,
+    String? toWalletId,
+  }) {
+    return Transaction(
+      id: id,
+      userId: userId ?? this.userId,
+      walletId: walletId ?? this.walletId,
+      categoryId: categoryId ?? this.categoryId,
+      type: type ?? this.type,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      note: note ?? this.note,
+      toWalletId: toWalletId ?? this.toWalletId,
+    );
   }
 }
