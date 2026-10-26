@@ -1,112 +1,179 @@
-# 📋 TÀI LIỆU BÀN GIAO — Database Schema & Provider Convention
+# 📋 TÀI LIỆU BÀN GIAO (v2) — Firestore Schema & Provider Convention
 
-**Người viết:** Leader (Member 1) | **Nhánh:** `feature/leader-auth-wallet` → sẽ merge vào `develop`  
-**Mục đích:** Thành viên 2 & 3 đọc file này để biết chính xác tên bảng, tên field, kiểu dữ liệu và tên Provider/Repository được phép gọi. **Không tự ý đổi tên field hoặc tạo bảng trùng chức năng.**
+**Người viết:** Leader (Member 1) | **Nhánh:** `feature/leader-auth-wallet-b` → sẽ merge vào `develop`
+**Lý do đổi từ Drift/SQLite sang Firestore:** Đề bài tập lớn **Câu 7** yêu cầu "Kết nối CSDL, thực hiện ORM (Object Related Mapping) với **Documents của Firebase**" → toàn bộ tầng dữ liệu chuyển sang **Cloud Firestore**, xác thực chuyển sang **Firebase Authentication**.
+
+> ⚠️ Thành viên 2 & 3 đọc file này và file `docs/Huong-Dan-Firestore-Cho-Member.md` để biết chính xác cách thao tác dữ liệu. **Không tự ý gọi `FirebaseFirestore.instance` trực tiếp trong feature.**
 
 ---
 
-## 1. Sơ đồ quan hệ (tổng quan)
+## 1. Tổng quan công nghệ
+
+| Lớp | Công nghệ | Ghi chú |
+|---|---|---|
+| State management | Riverpod | Giữ nguyên |
+| Xác thực | **Firebase Authentication** (email/password) | Mật khẩu KHÔNG lưu trong DB |
+| Database | **Cloud Firestore** | Mỗi bản ghi = 01 Document |
+| ORM | `withConverter` + model classes | Ánh xạ Document ↔ Object tự động |
+| Chạy/kiểm thử | Chrome hoặc emulator Android | ⚠️ Firebase không hỗ trợ Windows/Linux desktop |
+
+---
+
+## 2. Các collection (tương ứng 5 bảng cũ)
 
 ```text
-User (1) ──< Wallet (nhiều)
-Wallet (1) ──< Transaction (nhiều)
-Category (1) ──< Transaction (nhiều)
-Category (1) ──< Budget (nhiều)
+users (1) ──< wallets (nhiều)
+wallets (1) ──< transactions (nhiều)
+categories (1) ──< transactions (nhiều)
+categories (1) ──< budgets (nhiều)
+```
+
+### 2.1. `users` — model `AppUser` (`lib/data/firestore/models/user.dart`)
+
+| Field | Kiểu | Ghi chú |
+|---|---|---|
+| `id` (Document ID) | `String` | **= uid từ Firebase Auth** |
+| `email` | `String` | |
+| `displayName` | `String` | |
+| `currencyCode` | `String` | mặc định `'VND'` |
+| `createdAt` | `Timestamp` | |
+
+### 2.2. `wallets` — model `Wallet`
+
+| Field | Kiểu | Ghi chú |
+|---|---|---|
+| `id` (Document ID) | `String` | UUID |
+| `userId` | `String` | = uid, dùng để lọc ví theo người đăng nhập |
+| `name` | `String` | vd: "Tiền mặt" |
+| `type` | `String` (`cash` / `bank` / `ewallet`) | |
+| `balance` | `double` | **luôn cập nhật qua `updateBalance`, không sửa tay** |
+| `iconCode` | `int?` | |
+| `colorHex` | `String?` | vd `'#4CAF50'` |
+| `createdAt` | `Timestamp` | |
+
+### 2.3. `categories` — model `Category` *(Member 2 sở hữu, Member 3 chỉ đọc)*
+
+| Field | Kiểu | Ghi chú |
+|---|---|---|
+| `id` (Document ID) | `String` | danh mục mặc định dùng **id cố định** (seeder idempotent) |
+| `name` | `String` | |
+| `type` | `String` (`income` / `expense`) | |
+| `iconCode` | `int?` | codepoint Material Icon |
+| `colorHex` | `String?` | |
+| `isDefault` | `bool` | `true` = danh mục seed sẵn |
+
+### 2.4. `transactions` — model `Transaction` *(Member 2 sở hữu, Member 3 chỉ đọc)*
+
+| Field | Kiểu | Ghi chú |
+|---|---|---|
+| `id` (Document ID) | `String` | UUID |
+| `walletId` | `String` | → wallets |
+| `categoryId` | `String?` | → categories; null nếu `transfer` |
+| `type` | `String` (`income` / `expense` / `transfer`) | |
+| `amount` | `double` | **luôn dương**, dấu +/- do `type` quyết định |
+| `date` | `Timestamp` | |
+| `note` | `String?` | |
+| `toWalletId` | `String?` | chỉ khi `type = transfer` |
+
+### 2.5. `budgets` — model `Budget` *(Member 3 sở hữu)*
+
+| Field | Kiểu | Ghi chú |
+|---|---|---|
+| `id` (Document ID) | `String` | UUID |
+| `categoryId` | `String` | → categories |
+| `month` | `int` | 1–12 |
+| `year` | `int` | |
+| `limitAmount` | `double` | |
+
+---
+
+## 3. Cách thao tác dữ liệu (BẮT BUỘC đọc)
+
+### 3.1. Luôn đi qua tầng ORM
+
+```dart
+// ✅ ĐÚNG — dùng hàm collection có sẵn converter:
+import 'package:project_mobile/data/firestore/firestore_collections.dart';
+final ref = walletsCollection(db).doc(id);  // CollectionReference<Wallet>
+await ref.set(wallet);                       // tự gọi wallet.toDocument()
+final wallet = (await ref.get()).data();     // tự gọi Wallet.fromDocument()
+
+// ❌ SAI — không tự tay thao tác Map thủ công:
+FirebaseFirestore.instance.collection('wallets').doc(id).set({'name': '...'});
+```
+
+Các hàm có sẵn trong `lib/data/firestore/firestore_collections.dart`:
+`usersCollection`, `walletsCollection`, `categoriesCollection`, `transactionsCollection`, `budgetsCollection` — tất cả đã gắn converter.
+
+### 3.2. Repository pattern
+
+Mỗi feature có 2 file:
+
+```text
+lib/features/<ten-feature>/data/repositories/
+├── <ten>_repository.dart            # interface (hợp đồng dữ liệu)
+└── firestore_<ten>_repository.dart  # implement bằng Firestore
+```
+
+Mẫu tham khảo: `lib/features/wallet/data/repositories/firestore_wallet_repository.dart`.
+
+### 3.3. Lọc theo người dùng
+
+Firestore không tự biết "của ai" — luôn lọc bằng `userId`:
+
+```dart
+final uid = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
+walletsCollection(db).where('userId', isEqualTo: uid)...
+```
+
+### 3.4. Cập nhật số dư ví từ Transaction (Member 2 phải dùng)
+
+```dart
+// Trong TransactionRepository khi tạo giao dịch:
+final walletRepo = ref.read(walletRepositoryProvider);   // 🔒 Leader cung cấp
+await walletRepo.updateBalance(walletId, delta);         // delta: + thu / - chi
 ```
 
 ---
 
-## 2. Chi tiết từng bảng (Drift)
+## 4. Provider/Repository — tên chuẩn để gọi (không tự đặt tên khác)
 
-### 2.1. `User`
-
-| Field | Kiểu | Ghi chú |
-|---|---|---|
-| `id` | `TEXT` (PK) | UUID |
-| `email` | `TEXT` | unique |
-| `passwordHash` | `TEXT` | nullable nếu dùng Firebase Auth |
-| `displayName` | `TEXT` | nullable |
-| `avatarPath` | `TEXT` | nullable |
-| `currencyCode` | `TEXT` | mặc định `'VND'` |
-| `createdAt` | `DATETIME` | tự động tạo timestamp |
-
-### 2.2. `Wallet`
-
-| Field | Kiểu | Ghi chú |
-|---|---|---|
-| `id` | `TEXT` (PK) | UUID |
-| `userId` | `TEXT` (FK → User.id) | |
-| `name` | `TEXT` | vd: "Tiền mặt", "Vietcombank" |
-| `type` | `TEXT` (enum: `cash`, `bank`, `ewallet`) | |
-| `balance` | `REAL` | **luôn cập nhật qua Transaction, không sửa tay trong UI** |
-| `iconCode` | `INTEGER` | nullable, codepoint icon |
-| `colorHex` | `TEXT` | nullable, vd `'#4CAF50'` |
-| `createdAt` | `DATETIME` | |
-
-### 2.3. `Category` *(Member 2 sở hữu, nhưng Member 3 chỉ đọc)*
-
-| Field | Kiểu | Ghi chú |
-|---|---|---|
-| `id` | `TEXT` (PK) | UUID |
-| `name` | `TEXT` | |
-| `type` | `TEXT` (enum: `income`, `expense`) | |
-| `iconCode` | `INTEGER` | nullable |
-| `colorHex` | `TEXT` | nullable |
-| `isDefault` | `BOOLEAN` | true nếu là danh mục seed sẵn |
-
-### 2.4. `Transaction` *(Member 2 sở hữu, Member 3 chỉ đọc)*
-
-| Field | Kiểu | Ghi chú |
-|---|---|---|
-| `id` | `TEXT` (PK) | UUID |
-| `walletId` | `TEXT` (FK → Wallet.id) | |
-| `categoryId` | `TEXT` (FK → Category.id) | nullable nếu type=`transfer` |
-| `type` | `TEXT` (enum: `income`, `expense`, `transfer`) | |
-| `amount` | `REAL` | luôn dương, dấu +/- do `type` quyết định |
-| `date` | `DATETIME` | |
-| `note` | `TEXT` | nullable |
-| `toWalletId` | `TEXT` (FK → Wallet.id) | chỉ dùng khi `type = transfer` |
-
-### 2.5. `Budget` *(Member 3 sở hữu)*
-
-| Field | Kiểu | Ghi chú |
-|---|---|---|
-| `id` | `TEXT` (PK) | UUID |
-| `categoryId` | `TEXT` (FK → Category.id) | |
-| `month` | `INTEGER` | 1–12 |
-| `year` | `INTEGER` | |
-| `limitAmount` | `REAL` | |
-
----
-
-## 3. Provider/Repository — tên chuẩn để gọi (không tự đặt tên khác)
-
-> Các Provider có 🔒 là do **Leader implement sẵn**, Member 2/3 **chỉ import và dùng**, không viết lại logic bên trong.
+> Provider có 🔒 là do **Leader implement sẵn**, Member 2/3 **chỉ import và dùng**.
 
 | Provider/Repository | Ai implement | Ai được dùng | Input | Output |
 |---|---|---|---|---|
-| 🔒 `walletRepositoryProvider` | Leader | Member 2 (để trừ/cộng số dư khi tạo transaction) | — | `WalletRepository` (có method `updateBalance(walletId, delta)`) |
-| 🔒 `totalBalanceProvider` | Leader | Member 3 (hiển thị tổng quan) | — | `double` (hoặc `AsyncValue<double>`) |
-| 🔒 `currentUserProvider` | Leader | Member 2, 3 (lấy `userId`, `currencyCode` để format tiền) | — | `User?` (hoặc `AsyncValue<User?>`) |
-| `categoryRepositoryProvider` | Member 2 | Member 3 (đọc danh mục để vẽ chart/đặt budget) | — | `CategoryRepository` (method `getAll()`, `getById(id)`) |
-| `transactionsByMonthProvider` | Member 2 | Member 3 (vẽ biểu đồ xu hướng) | `(month, year)` | `List<Transaction>` (hoặc `AsyncValue<List<Transaction>>`) |
-| `transactionsByCategoryProvider` | Member 2 | Member 3 (vẽ pie chart + tính % budget) | `(month, year)` | `Map<String, double>` |
+| 🔒 `firebaseFirestoreProvider` | Leader | Tất cả repository | — | `FirebaseFirestore` |
+| 🔒 `firebaseAuthProvider` | Leader | Auth | — | `FirebaseAuth` |
+| 🔒 `authServiceProvider` | Leader | Màn hình đăng nhập | — | `AuthService` (`register`, `signIn`, `signOut`) |
+| 🔒 `currentUserProvider` | Leader | Member 2, 3 (lấy `id`, `currencyCode`) | — | `AsyncValue<AppUser?>` |
+| 🔒 `firebaseSeedProvider` | Leader | Khởi động app | — | seed 13 danh mục mặc định |
+| 🔒 `walletRepositoryProvider` | Leader | Member 2 (cập nhật số dư khi tạo transaction) | — | `WalletRepository` (`updateBalance(walletId, delta)`) |
+| 🔒 `totalBalanceProvider` | Leader | Member 3 (tổng quan) | — | `AsyncValue<double>` |
+| `categoryRepositoryProvider` | Member 2 | Member 3 (đọc danh mục) | — | `CategoryRepository` (`getAll()`, `getById(id)`, ...) |
+| `transactionsByMonthProvider` | Member 2 | Member 3 (biểu đồ xu hướng) | `({int month, int year})` | `Stream<List<Transaction>>` |
+| `transactionsByCategoryProvider` | Member 2 | Member 3 (pie chart + % budget) | `({int month, int year})` | `AsyncValue<Map<String, double>>` |
 | `budgetRepositoryProvider` | Member 3 | — (nội bộ) | — | `BudgetRepository` |
 
-**Quy tắc chung:**
-
-- Ai sở hữu bảng nào thì người đó viết `Repository` cho bảng đó và **công bố Provider public** để người khác dùng.
-- Không được import thẳng `AppDatabase` và query tay từ feature khác — luôn đi qua Repository/Provider đã công bố ở bảng trên, để khi đổi cấu trúc DB chỉ cần sửa 1 chỗ.
-- Nếu cần thêm Provider mới không có trong bảng này → báo Leader trong nhóm chat trước khi tạo, để tránh trùng chức năng.
+**Quy tắc chung:** ai sở hữu collection nào thì người đó viết Repository cho collection đó và công bố Provider public như bảng trên. Nếu cần thêm Provider mới → báo Leader trong nhóm chat trước khi tạo.
 
 ---
 
-## 4. Checklist bàn giao (Leader tick khi xong Sprint 0)
+## 5. Auth (Firebase Authentication)
 
-- [x] `AppDatabase` (Drift) build thành công, không lỗi generate code
-- [x] Bảng `User`, `Wallet`, `Category`, `Transaction`, `Budget` đã có trong schema
-- [x] Cấu trúc thư mục feature-first chuẩn cho các thành viên
-- [ ] Seed dữ liệu Category mặc định chạy được
-- [ ] `walletRepositoryProvider`, `totalBalanceProvider`, `currentUserProvider` hoạt động
-- [ ] File này đã gửi vào nhóm chat + đính kèm trong PR đầu tiên vào `develop`
-- [ ] Member 2 & 3 đã pull `develop`, build project chạy được trên máy họ
+- `currentUserProvider` là `StreamProvider<AppUser?>` — lắng nghe trạng thái đăng nhập theo thời gian thực.
+- Màn hình đăng nhập/đăng ký do **Leader** phụ trách (sẽ có ở commit sau).
+- Member 2/3 khi cần `userId`: `ref.watch(currentUserProvider).value?.id` (xử lý cả trường hợp null = chưa đăng nhập).
+
+---
+
+## 6. Checklist bàn giao (Leader tick khi xong)
+
+- [x] Tầng ORM Firestore (`models`, `firestore_collections`) build thành công
+- [x] `WalletRepository` chạy trên Firestore, giữ nguyên interface cũ
+- [x] `AuthService` (đăng ký/đăng nhập/đăng xuất) + `currentUserProvider`
+- [x] Seeder 13 danh mục mặc định lên Firestore (idempotent)
+- [x] Unit test + widget test xanh (không phụ thuộc Drift)
+- [ ] Màn hình đăng nhập/đăng ký (Auth UI)
+- [ ] Member 2: CategoryRepository + TransactionRepository trên Firestore
+- [ ] Member 3: BudgetRepository + Analytics trên Firestore
+- [ ] Merge `develop`, cả nhóm build chạy được trên Chrome/emulator

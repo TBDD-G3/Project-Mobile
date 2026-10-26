@@ -1,45 +1,22 @@
-import 'package:drift/drift.dart';
-import '../../../../data/database/app_database.dart';
+import '../../../../data/firestore/models/wallet.dart';
 
-class WalletRepository {
-  final AppDatabase _db;
+/// Hợp đồng dữ liệu của Ví tiền.
+///
+/// Có 2 implementation:
+/// - [FirestoreWalletRepository] — dùng trong ứng dụng thật (Câu 7: Firebase).
+/// - [MockWalletRepository] — dùng cho chế độ mock / kiểm thử không cần mạng.
+abstract interface class WalletRepository {
+  Stream<List<Wallet>> watchAllWallets();
 
-  WalletRepository(this._db);
+  Future<Wallet?> getWalletById(String id);
 
-  /// Lấy danh sách tất cả các ví
-  Stream<List<Wallet>> watchAllWallets() {
-    return _db.select(_db.wallets).watch();
-  }
+  Future<void> insertWallet(Wallet wallet);
 
-  /// Lấy thông tin 1 ví theo ID
-  Future<Wallet?> getWalletById(String id) {
-    return (_db.select(_db.wallets)..where((tbl) => tbl.id.equals(id)))
-        .getSingleOrNull();
-  }
+  Future<void> updateWallet(Wallet wallet);
 
-  /// Thêm ví mới
-  Future<int> insertWallet(WalletsCompanion wallet) {
-    return _db.into(_db.wallets).insert(wallet);
-  }
+  /// Số dư CHỈ được thay đổi qua method này (khi tạo/sửa/xóa Transaction).
+  /// [delta]: số tiền thay đổi (+ tăng tiền, - giảm tiền).
+  Future<void> updateBalance(String walletId, double delta);
 
-  /// Cập nhật thông tin ví (tên, loại, màu sắc, v.v.)
-  Future<bool> updateWallet(WalletsCompanion wallet) {
-    return _db.update(_db.wallets).replace(wallet);
-  }
-
-  /// CẬP NHẬT SỐ DƯ VÍ — BẮT BUỘC DÙNG METHOD NÀY KHI TẠO/SỬA/XÓA TRANSACTION
-  /// [delta]: số tiền thay đổi (+ tăng tiền, - giảm tiền)
-  Future<void> updateBalance(String walletId, double delta) async {
-    final wallet = await getWalletById(walletId);
-    if (wallet != null) {
-      final newBalance = wallet.balance + delta;
-      await (_db.update(_db.wallets)..where((tbl) => tbl.id.equals(walletId)))
-          .write(WalletsCompanion(balance: Value(newBalance)));
-    }
-  }
-
-  /// Xóa ví
-  Future<int> deleteWallet(String id) {
-    return (_db.delete(_db.wallets)..where((tbl) => tbl.id.equals(id))).go();
-  }
+  Future<void> deleteWallet(String id);
 }
