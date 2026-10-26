@@ -41,10 +41,12 @@ flutter run -d chrome          # hoặc chọn emulator Android
 
 | Chế độ | Khi nào dùng | Cần gì |
 |---|---|---|
-| Mock (`kUseMockData = true` — hiện tại) | Đang code UI, test widget, chưa có Firebase project | Không cần gì |
-| Firebase thật (`false`) | Demo cuối kỳ & tích hợp thật | Leader cấu hình `flutterfire configure` |
+| Firebase thật (`kUseMockData = false` — **mặc định hiện tại**) | Chạy thật, demo cuối kỳ, tích hợp dữ liệu | Có internet; config đã commit sẵn (`lib/firebase_options.dart`, `android/app/google-services.json`) — không cần tự cấu hình Firebase |
+| Mock (`true`) | Chỉnh UI offline / chạy widget test nhanh | Đổi cờ trong `lib/main.dart` — dữ liệu ví giả, không ghi Firestore |
 
 ⚠️ **Không chạy trên Windows/Linux desktop nữa** — Firebase không hỗ trợ 2 nền tảng đó. Dùng Chrome hoặc emulator Android.
+
+🔐 **Firestore rules** (file `firestore.rules`, đã deploy): mỗi user chỉ đọc/ghi Document có `userId` trùng uid đang đăng nhập. Vì vậy khi viết repository mới (Transaction, Budget) **bắt buộc** gán `userId: FirebaseAuth.instance.currentUser!.uid` khi tạo Document và `.where('userId', isEqualTo: uid)` khi đọc — nếu quên sẽ bị `PERMISSION_DENIED`.
 
 ---
 

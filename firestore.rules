@@ -1,0 +1,39 @@
+rules_version = '2';
+
+// Firestore Security Rules — Expense Tracker (project-mobile-c0faa)
+// Nguyên tắc: mỗi người dùng chỉ đọc/ghi được Document của chính mình.
+// - wallets / transactions / budgets: Document phải có userId == uid đang đăng nhập.
+// - categories: collection dùng chung (13 danh mục mặc định), user đã đăng nhập được đọc/ghi.
+// - users: mỗi uid chỉ truy cập hồ sơ của chính mình.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /wallets/{walletId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    match /budgets/{budgetId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    match /categories/{categoryId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}

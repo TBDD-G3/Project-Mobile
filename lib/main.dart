@@ -11,11 +11,12 @@ import 'features/wallet/data/repositories/mock_wallet_repository.dart';
 import 'features/wallet/providers/wallet_providers.dart';
 import 'firebase_options.dart';
 
-/// Bật để chạy UI bằng dữ liệu giả lập, không cần Firebase.
+/// Đặt `true` để chạy UI bằng dữ liệu giả lập, không cần Firebase
+/// (tiện khi chỉnh giao diện offline hoặc chạy widget test).
 ///
-/// Sau khi nhóm tạo Firebase project và chạy `flutterfire configure`,
-/// đổi thành `false` để app dùng Firestore + Firebase Auth thật (Câu 7 đề bài).
-const bool kUseMockData = true;
+/// Đang để `false`: app dùng Firestore + Firebase Auth thật (Câu 7 đề bài),
+/// cấu hình nằm trong `lib/firebase_options.dart` do `flutterfire configure` sinh.
+const bool kUseMockData = false;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
