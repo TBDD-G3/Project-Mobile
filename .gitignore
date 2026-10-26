@@ -18,10 +18,7 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -57,3 +54,10 @@ app.*.map.json
 
 # Node.js
 node_modules/
+
+# Drift Web artifacts (generated — chạy `dart run tool/setup_web.dart` để tạo lại)
+web/sqlite3.wasm
+web/drift_worker.js
+web/drift_worker.js.deps
+web/drift_worker.js.map
+web/drift_worker.dart
