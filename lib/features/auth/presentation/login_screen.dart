@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../../auction/presentation/auction_session_screen.dart';
 import '../providers/auth_providers.dart';
 import 'register_screen.dart';
 
-/// Màn hình Đăng nhập (theo wireframe A — Xác thực):
-/// Email/SĐT + Mật khẩu, nút đăng nhập full-width, "Quên mật khẩu?",
-/// liên kết sang màn hình Đăng ký.
+/// Màn đăng nhập (wireframe A): email/mật khẩu, nút đăng nhập full-width,
+/// có link Quên mật khẩu và link sang màn Đăng ký.
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -40,7 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text,
           );
-      // Thành công: AuthGate tự chuyển sang màn hình chính qua currentUserProvider.
+      // Đăng nhập xong thì AuthGate tự chuyển sang màn chính, không cần push.
     } on fa.FirebaseAuthException catch (e) {
       _showError(_authErrorMessage(e));
     } catch (e) {
@@ -246,6 +246,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AuctionSessionScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.gavel_outlined, size: 18),
+                        label: const Text(
+                          'Màn hình Phiên Đấu Giá (Câu 5)',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                       ),
                     ),
                   ],

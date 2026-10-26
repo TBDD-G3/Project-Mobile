@@ -11,14 +11,13 @@ import '../../transaction/presentation/transactions_screen.dart';
 import '../../wallet/presentation/wallets_screen.dart';
 import '../../wallet/providers/wallet_providers.dart';
 
-/// 🔒 Shell chung cố định của toàn app:
-/// AppBar tên app + chip số dư, nội dung 4 tab đã gắn sẵn màn hình của từng thành viên,
-/// bottom nav bong bóng kiểu Agoda.
+/// Shell chung của cả app: AppBar kèm chip số dư, 4 tab đã gắn sẵn màn hình
+/// của từng thành viên, bottom nav kiểu Agoda.
 ///
-/// ⚠️ CÁC THÀNH VIÊN KHÔNG SỬA FILE NÀY.
-/// - Member 1 (Leader): làm việc trong `lib/features/wallet/` & `lib/features/auth/`
-/// - Member 2 (Hải Đăng): làm việc trong `lib/features/transaction/` & `lib/features/category/`
-/// - Member 3: làm việc trong `lib/features/budget/` & `lib/features/analytics/`
+/// Các thành viên không sửa file này.
+/// - Member 1 (Leader): làm trong `lib/features/wallet/` và `lib/features/auth/`
+/// - Member 2 (Hải Đăng): làm trong `lib/features/transaction/` và `lib/features/category/`
+/// - Member 3: làm trong `lib/features/budget/` và `lib/features/analytics/`
 class MainNavScreen extends ConsumerStatefulWidget {
   const MainNavScreen({super.key});
 
@@ -89,7 +88,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
   }
 }
 
-/// Chip mint hiển thị tổng số dư trên AppBar (kiểu chip `đ 734K` của Agoda).
+/// Chip số dư trên AppBar (kiểu chip `đ 734K` của Agoda).
 class _BalanceChip extends StatelessWidget {
   final double balance;
 
@@ -125,7 +124,7 @@ class _BalanceChip extends StatelessWidget {
     );
   }
 
-  /// Rút gọn số tiền kiểu Agoda: `32,5 tr` / `1,2 tỷ` — dưới 1 triệu giữ nguyên.
+  /// Rút gọn số tiền cho vừa chip: 32,5 tr / 1,2 tỷ, dưới 1 triệu thì để nguyên.
   String _compactMoney(double value) {
     if (value.abs() >= 1000000000) {
       return '${(value / 1000000000).toStringAsFixed(1)} tỷ';

@@ -1,5 +1,5 @@
 // ignore_for_file: file_names
-// Generic class dùng để miêu tả chung các đối tượng trong Project
+// Class chung để mô tả các đối tượng trong project (Câu 2)
 class Genericclass<T> {
   T id;
   T name;

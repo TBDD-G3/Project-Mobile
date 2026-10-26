@@ -5,23 +5,20 @@ import '../../../../data/firestore/firestore_collections.dart';
 import '../../../../data/firestore/models/wallet.dart';
 import 'wallet_repository.dart';
 
-/// Repository Ví tiền trên Firebase Firestore (Câu 7: ORM với Documents).
-///
-/// Mỗi ví là 01 Document trong collection `wallets`; mọi truy vấn đều đi
-/// qua `walletsCollection()` có gắn converter (`withConverter`) để tự động
-/// ánh xạ Document ↔ [Wallet].
+/// Repository ví chạy trên Firestore (Câu 7).
+/// Mỗi ví là một Document trong `wallets`, đọc/ghi đều qua
+/// `walletsCollection()` đã gắn converter nên làm việc thẳng với [Wallet].
 class FirestoreWalletRepository implements WalletRepository {
   final FirebaseFirestore _db;
 
   FirestoreWalletRepository(this._db);
 
-  /// Lọc ví theo người dùng đang đăng nhập (Firebase Auth uid).
+  /// Lấy uid của người đang đăng nhập để lọc ví.
   String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? 'guest';
 
   @override
   Stream<List<Wallet>> watchAllWallets() {
-    // Sắp xếp theo createdAt ở tầng Dart để tránh lỗi thiếu Composite Index
-    // khi kết hợp .where('userId') và .orderBy('createdAt') trên Firestore.
+    // Sort ở Dart cho khỏi phải tạo composite index cho where + orderBy.
     return walletsCollection(_db)
         .where('userId', isEqualTo: _currentUserId)
         .snapshots()
@@ -50,7 +47,7 @@ class FirestoreWalletRepository implements WalletRepository {
 
   @override
   Future<void> updateBalance(String walletId, double delta) async {
-    // FieldValue.increment: cộng/trừ nguyên tử trên server, tránh race condition.
+    // FieldValue.increment cộng/trừ ngay trên server, tránh race condition.
     await walletsCollection(_db)
         .doc(walletId)
         .update({'balance': FieldValue.increment(delta)});

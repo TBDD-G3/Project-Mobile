@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/firestore/models/budget.dart';
 import '../data/repositories/budget_repository.dart';
 
-/// 📌 Member 3 implement `FirestoreBudgetRepository` cho chức năng quản lý Ngân sách.
+/// Chỗ Member 3 gắn `FirestoreBudgetRepository` vào.
 final budgetRepositoryProvider = Provider<BudgetRepository>((ref) {
   return _DefaultBudgetRepository();
 });
 
-/// Stream danh sách ngân sách theo tháng/năm.
+/// Danh sách ngân sách theo tháng/năm.
 final budgetsByMonthProvider =
     StreamProvider.family<List<Budget>, ({int month, int year})>((ref, arg) {
       return ref

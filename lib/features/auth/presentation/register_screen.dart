@@ -6,8 +6,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../providers/auth_providers.dart';
 
-/// Màn hình Tạo tài khoản (theo wireframe A — Xác thực):
-/// AppBar có nút back về Đăng nhập; form Tên / Email / Mật khẩu / Nhập lại.
+/// Màn tạo tài khoản (wireframe A): AppBar có nút back về Đăng nhập,
+/// form gồm tên, email, mật khẩu và nhập lại mật khẩu.
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
@@ -43,7 +43,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             displayName: _nameController.text.trim(),
           );
       if (mounted) {
-        // Đăng ký xong → đã đăng nhập; quay về, AuthGate tự chuyển MainNav.
+        // Đăng ký xong là đã đăng nhập luôn, AuthGate tự đổi sang MainNav.
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Tạo tài khoản thành công!')),
         );

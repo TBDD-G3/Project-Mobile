@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/firestore/models/transaction.dart';
 import '../data/repositories/transaction_repository.dart';
 
-/// 📌 Member 2 sẽ gắn `FirestoreTransactionRepository` vào Provider này.
+/// Member 2 gắn `FirestoreTransactionRepository` vào đây.
 final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   return _DefaultTransactionRepository();
 });
 
-/// 📌 Member 2 implement: Lấy danh sách giao dịch theo tháng/năm.
-/// Member 3 dùng để vẽ biểu đồ xu hướng.
+/// Giao dịch theo tháng/năm. Member 3 dùng để vẽ biểu đồ xu hướng.
 final transactionsByMonthProvider =
     StreamProvider.family<List<Transaction>, ({int month, int year})>((
       ref,
@@ -20,9 +19,8 @@ final transactionsByMonthProvider =
           .watchTransactionsByMonth(arg.month, arg.year);
     });
 
-/// 📌 Member 2 implement: Tổng hợp số tiền chi tiêu theo Category ID trong tháng.
-/// Trả về `Map<String, double>`.
-/// Member 3 dùng để vẽ Pie chart + tính % budget.
+/// Tổng tiền chi theo từng categoryId trong tháng, trả về `Map<String, double>`.
+/// Member 3 dùng để vẽ pie chart và tính % ngân sách.
 final transactionsByCategoryProvider =
     FutureProvider.family<Map<String, double>, ({int month, int year})>((
       ref,

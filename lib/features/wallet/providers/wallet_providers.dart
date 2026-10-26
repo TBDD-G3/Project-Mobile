@@ -5,19 +5,19 @@ import '../../../data/firestore/models/wallet.dart';
 import '../data/repositories/firestore_wallet_repository.dart';
 import '../data/repositories/wallet_repository.dart';
 
-/// 🔒 Provider cung cấp WalletRepository (Firestore — do Leader implement).
+/// WalletRepository dùng Firestore (Leader viết).
 final walletRepositoryProvider = Provider<WalletRepository>((ref) {
   final db = ref.watch(firebaseFirestoreProvider);
   return FirestoreWalletRepository(db);
 });
 
-/// 🔒 Stream danh sách tất cả các ví (của người dùng đang đăng nhập).
+/// Danh sách ví của người đang đăng nhập.
 final walletsStreamProvider = StreamProvider<List<Wallet>>((ref) {
   final repo = ref.watch(walletRepositoryProvider);
   return repo.watchAllWallets();
 });
 
-/// 🔒 Provider tính tổng số dư tất cả các ví (Leader implement, Member 3 dùng).
+/// Tổng số dư các ví, Member 3 dùng cho màn tổng quan.
 final totalBalanceProvider = Provider<AsyncValue<double>>((ref) {
   final walletsAsync = ref.watch(walletsStreamProvider);
   return walletsAsync.whenData((wallets) {

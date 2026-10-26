@@ -3,8 +3,8 @@ import 'dart:async';
 import '../../../../data/firestore/models/wallet.dart';
 import 'wallet_repository.dart';
 
-/// Repository ví chạy trên bộ nhớ (in-memory) — dùng cho chế độ mock
-/// và kiểm thử khi không có kết nối Firebase.
+/// Repository ví giả, giữ dữ liệu trong bộ nhớ. Dùng khi test
+/// hoặc lúc không có mạng/Firebase.
 class MockWalletRepository implements WalletRepository {
   MockWalletRepository([List<Wallet>? initial]) : _wallets = [...?initial];
 

@@ -1,10 +1,8 @@
 import '../../../../data/firestore/models/wallet.dart';
 
-/// Hợp đồng dữ liệu của Ví tiền.
-///
-/// Có 2 implementation:
-/// - [FirestoreWalletRepository] — dùng trong ứng dụng thật (Câu 7: Firebase).
-/// - [MockWalletRepository] — dùng cho chế độ mock / kiểm thử không cần mạng.
+/// Interface dữ liệu Ví tiền, có 2 bản implement:
+/// - [FirestoreWalletRepository] dùng trong app thật (Câu 7)
+/// - [MockWalletRepository] dùng cho mock và test
 abstract interface class WalletRepository {
   Stream<List<Wallet>> watchAllWallets();
 
@@ -14,8 +12,8 @@ abstract interface class WalletRepository {
 
   Future<void> updateWallet(Wallet wallet);
 
-  /// Số dư CHỈ được thay đổi qua method này (khi tạo/sửa/xóa Transaction).
-  /// [delta]: số tiền thay đổi (+ tăng tiền, - giảm tiền).
+  /// Số dư chỉ nên đổi qua hàm này (lúc thêm/sửa/xóa giao dịch).
+  /// delta dương là cộng tiền, âm là trừ.
   Future<void> updateBalance(String walletId, double delta);
 
   Future<void> deleteWallet(String id);

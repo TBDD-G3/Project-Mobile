@@ -1,7 +1,7 @@
-# THÔNG BÁO — CHỐT KHUNG LÀM VIỆC CUỐI CÙNG
+# Thông báo — chốt khung làm việc cuối cùng
 
 > Ngày chốt: 26/10/2026 · Tag: `v1.0-framework-locked` · Áp dụng cho toàn nhóm (3 thành viên).
-> Đọc kỹ file này **trước khi code tiếp**. Mọi thắc mắc báo Leader, không tự quyết thay đổi khung.
+> Đọc kỹ trước khi code tiếp. Có gì chưa rõ thì hỏi Leader, đừng tự đổi khung.
 
 ---
 
@@ -23,7 +23,7 @@ git checkout -b feature/<ten-ban>-<tinh-nang>-v2
 - **Nhánh cũ tháng 9 của các bạn vẫn được giữ nguyên trên GitHub** (làm bằng chứng lịch sử commit — Câu 10). Không xóa, không làm gì thêm với nhánh cũ.
 - Không dùng lại code UI cũ trực tiếp vì nó gọi vào tầng Drift đã bị xóa; chỉ tham khảo bố cục rồi viết lại trên khung mới.
 
-## 3. Hợp đồng FROZEN — những thứ KHÔNG được thay đổi
+## 3. Mấy thứ đã chốt, không được đổi
 
 | Phạm vi | Quy tắc |
 |---|---|
@@ -35,9 +35,9 @@ git checkout -b feature/<ten-ban>-<tinh-nang>-v2
 | `lib/firebase_options.dart` | Cấu hình Firebase hiện tại — không đổi, không tạo project mới. |
 | Thư mục làm việc | Member 2: `lib/features/transaction/` + `lib/features/category/`; Member 3: `lib/features/budget/` + `lib/features/analytics/`; Leader: `lib/features/wallet/`, `lib/features/auth/`, `lib/features/auction/`. |
 
-Muốn sửa bất cứ thứ gì trong bảng trên → báo Leader, Leader sửa trên `develop` rồi cả nhóm `git pull`. **Không tự sửa riêng trên nhánh cá nhân.**
+Cần sửa gì trong bảng trên thì báo Leader, Leader sửa trên `develop` rồi cả nhóm `git pull`. **Đừng tự sửa riêng trên nhánh cá nhân.**
 
-## 4. Hợp đồng code — mẫu chuẩn để các bạn làm theo
+## 4. Code mẫu để làm theo
 
 Kiến trúc 3 lớp bắt buộc:
 
@@ -50,7 +50,7 @@ UI (màn hình) → Provider (Riverpod) → Repository (interface + Firestore + 
 - **Provider mẫu:** `lib/features/wallet/providers/wallet_providers.dart`.
 - **Tài liệu chi tiết:** `docs/Huong-Dan-Firestore-Cho-Member.md` (đọc từ đầu đến cuối trước khi viết code).
 
-## 5. Kỷ luật Git — điểm lịch sử commit (Câu 10)
+## 5. Chuyện Git — điểm lịch sử commit (Câu 10)
 
 - Mỗi người tự commit bằng đúng tài khoản GitHub của mình:
   ```bash

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
-/// Trạng thái rỗng: minh họa pastel + tiêu đề + (tùy chọn) nút CTA.
+/// Màn hình rỗng: icon pastel, tiêu đề, thêm nút CTA nếu cần.
 class EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;

@@ -4,19 +4,19 @@ import '../../../data/firestore/models/category.dart';
 import '../../../data/firestore/seed/initial_seeder.dart';
 import '../data/repositories/category_repository.dart';
 
-/// 📌 Member 2 sẽ implement FirestoreCategoryRepository và gắn vào Provider này.
-/// Member 3 chỉ đọc thông qua [categoriesStreamProvider] hoặc [categoryRepositoryProvider].
+/// Member 2 sẽ thay repository mặc định bên dưới bằng bản Firestore.
+/// Member 3 chỉ cần đọc qua [categoriesStreamProvider].
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
   return _DefaultCategoryRepository();
 });
 
-/// Stream toàn bộ danh mục thu/chi (dùng chung cho Member 2 và Member 3).
+/// Stream toàn bộ danh mục, dùng chung cho Member 2 và Member 3.
 final categoriesStreamProvider = StreamProvider<List<Category>>((ref) {
   return ref.watch(categoryRepositoryProvider).watchAll();
 });
 
-/// Fallback mặc định trả về 13 danh mục chuẩn từ [InitialSeeder] để Member 3
-/// có thể test UI/Biểu đồ ngay lập tức trước khi Member 2 hoàn thành Firestore repo.
+/// Bản tạm dùng 13 danh mục seed sẵn để Member 3 test UI/biểu đồ
+/// trong lúc chờ repo Firestore của Member 2.
 class _DefaultCategoryRepository implements CategoryRepository {
   final List<Category> _items = List<Category>.of(
     InitialSeeder.defaultCategories,

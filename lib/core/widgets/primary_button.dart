@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
 /// Nút chính full-width, chữ đậm, bo góc 12.
-///
-/// [background] mặc định xanh primary; wireframe của nhóm dùng đen
-/// `#2A2E35` cho form — truyền `AppColors.textPrimary` khi cần.
+/// Mặc định nền xanh primary, riêng form thì truyền `AppColors.textPrimary`
+/// cho giống wireframe của nhóm.
 class PrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;

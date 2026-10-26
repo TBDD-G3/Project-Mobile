@@ -1,9 +1,9 @@
-/// Danh mục thu/chi — Firestore Document model (Member 2).
+/// Danh mục thu/chi (Member 2 phụ trách).
 class Category {
   final String id;
   final String name;
 
-  /// 'income' | 'expense'
+  /// 'income' hoặc 'expense'
   final String type;
   final int? iconCode;
   final String? colorHex;

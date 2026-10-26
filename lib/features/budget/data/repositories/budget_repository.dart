@@ -1,8 +1,6 @@
 import '../../../../data/firestore/models/budget.dart';
 
-/// 🔒 Hợp đồng dữ liệu cố định của Ngân sách (Budget).
-///
-/// - Member 3 implement `FirestoreBudgetRepository` từ interface này.
+/// Interface dữ liệu Ngân sách. Member 3 implement bản Firestore từ đây.
 abstract interface class BudgetRepository {
   Stream<List<Budget>> watchBudgetsByMonth(int month, int year);
 

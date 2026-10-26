@@ -1,9 +1,9 @@
-# 📋 TÀI LIỆU BÀN GIAO (v2) — Firestore Schema & Provider Convention
+# Tài liệu bàn giao (v2) — Firestore schema và quy ước Provider
 
 **Người viết:** Leader (Member 1) | **Nhánh chuẩn:** `develop` (đã xóa bỏ hoàn toàn Drift/SQLite cũ)
 **Lý do đổi từ Drift/SQLite sang Firestore:** Đề bài tập lớn **Câu 7** yêu cầu "Kết nối CSDL, thực hiện ORM (Object Related Mapping) với **Documents của Firebase**" → toàn bộ tầng dữ liệu chuyển sang **Cloud Firestore**, xác thực chuyển sang **Firebase Authentication**.
 
-> ⚠️ Thành viên 2 & 3 đọc file này và file `docs/Huong-Dan-Firestore-Cho-Member.md` để biết chính xác cách thao tác dữ liệu. **Không tự ý gọi `FirebaseFirestore.instance` trực tiếp trong feature.**
+> Member 2 và 3 đọc file này cùng `docs/Huong-Dan-Firestore-Cho-Member.md` để nắm cách thao tác dữ liệu. **Đừng gọi thẳng `FirebaseFirestore.instance` trong feature.**
 
 ---
 
@@ -15,7 +15,7 @@
 | Xác thực | **Firebase Authentication** (email/password) | Mật khẩu KHÔNG lưu trong DB |
 | Database | **Cloud Firestore** | Mỗi bản ghi = 01 Document |
 | ORM | `withConverter` + model classes | Ánh xạ Document ↔ Object tự động |
-| Chạy/kiểm thử | Chrome hoặc emulator Android | ⚠️ Firebase không hỗ trợ Windows/Linux desktop |
+| Chạy/kiểm thử | Chrome hoặc emulator Android | Firebase không hỗ trợ Windows/Linux desktop |
 
 ---
 
@@ -91,18 +91,18 @@ categories (1) ──< budgets (nhiều)
 
 ---
 
-## 3. Cách thao tác dữ liệu (BẮT BUỘC đọc)
+## 3. Cách thao tác dữ liệu (đọc kỹ phần này)
 
 ### 3.1. Luôn đi qua tầng ORM
 
 ```dart
-// ✅ ĐÚNG — dùng hàm collection có sẵn converter:
+// ĐÚNG: dùng hàm collection có sẵn converter
 import 'package:project_mobile/data/firestore/firestore_collections.dart';
 final ref = walletsCollection(db).doc(id);  // CollectionReference<Wallet>
 await ref.set(wallet);                       // tự gọi wallet.toDocument()
 final wallet = (await ref.get()).data();     // tự gọi Wallet.fromDocument()
 
-// ❌ SAI — không tự tay thao tác Map thủ công:
+// SAI: đừng tự tay thao tác Map
 FirebaseFirestore.instance.collection('wallets').doc(id).set({'name': '...'});
 ```
 
@@ -134,25 +134,25 @@ walletsCollection(db).where('userId', isEqualTo: uid)...
 
 ```dart
 // Trong TransactionRepository khi tạo giao dịch:
-final walletRepo = ref.read(walletRepositoryProvider);   // 🔒 Leader cung cấp
+final walletRepo = ref.read(walletRepositoryProvider);   // Leader cung cấp
 await walletRepo.updateBalance(walletId, delta);         // delta: + thu / - chi
 ```
 
 ---
 
-## 4. Provider/Repository — tên chuẩn để gọi (không tự đặt tên khác)
+## 4. Tên Provider/Repository — dùng đúng tên này, đừng tự đặt tên khác
 
-> Provider có 🔒 là do **Leader implement sẵn**, Member 2/3 **chỉ import và dùng**.
+> Mấy provider mà cột "Ai implement" ghi Leader là Leader viết sẵn rồi, Member 2/3 chỉ import và dùng.
 
 | Provider/Repository | Ai implement | Ai được dùng | Input | Output |
 |---|---|---|---|---|
-| 🔒 `firebaseFirestoreProvider` | Leader | Tất cả repository | — | `FirebaseFirestore` |
-| 🔒 `firebaseAuthProvider` | Leader | Auth | — | `FirebaseAuth` |
-| 🔒 `authServiceProvider` | Leader | Màn hình đăng nhập | — | `AuthService` (`register`, `signIn`, `signOut`) |
-| 🔒 `currentUserProvider` | Leader | Member 2, 3 (lấy `id`, `currencyCode`) | — | `AsyncValue<AppUser?>` |
-| 🔒 `firebaseSeedProvider` | Leader | Khởi động app | — | seed 13 danh mục mặc định |
-| 🔒 `walletRepositoryProvider` | Leader | Member 2 (cập nhật số dư khi tạo transaction) | — | `WalletRepository` (`updateBalance(walletId, delta)`) |
-| 🔒 `totalBalanceProvider` | Leader | Member 3 (tổng quan) | — | `AsyncValue<double>` |
+| `firebaseFirestoreProvider` | Leader | Tất cả repository | — | `FirebaseFirestore` |
+| `firebaseAuthProvider` | Leader | Auth | — | `FirebaseAuth` |
+| `authServiceProvider` | Leader | Màn hình đăng nhập | — | `AuthService` (`register`, `signIn`, `signOut`) |
+| `currentUserProvider` | Leader | Member 2, 3 (lấy `id`, `currencyCode`) | — | `AsyncValue<AppUser?>` |
+| `firebaseSeedProvider` | Leader | Khởi động app | — | seed 13 danh mục mặc định |
+| `walletRepositoryProvider` | Leader | Member 2 (cập nhật số dư khi tạo transaction) | — | `WalletRepository` (`updateBalance(walletId, delta)`) |
+| `totalBalanceProvider` | Leader | Member 3 (tổng quan) | — | `AsyncValue<double>` |
 | `categoryRepositoryProvider` | Member 2 | Member 3 (đọc danh mục) | — | `CategoryRepository` (`getAll()`, `getById(id)`, ...) |
 | `transactionsByMonthProvider` | Member 2 | Member 3 (biểu đồ xu hướng) | `({int month, int year})` | `Stream<List<Transaction>>` |
 | `transactionsByCategoryProvider` | Member 2 | Member 3 (pie chart + % budget) | `({int month, int year})` | `AsyncValue<Map<String, double>>` |
