@@ -35,7 +35,6 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ngân sách'),
-        centerTitle: false,
         actions: [
           IconButton(
             tooltip: 'Chọn tháng',
@@ -71,8 +70,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                            color: const Color(0xFFF0F0F3),
-                            border: Border.all(color: const Color(0xFFD4D5DA)),
+                          color: Colors.white,
+                          border: Border.all(color: AppColors.border),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -163,6 +162,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                   final progress = (spent / row.budgetAmount).clamp(0.0, 1.0);
                   final isOver = spent > row.budgetAmount;
                   final isWarning = spent / row.budgetAmount >= 0.8;
+                  final categoryColor = _colorFromHex(row.category.colorHex);
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -184,6 +184,16 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                           ),
                           child: Row(
                             children: [
+                              CircleAvatar(
+                                radius: 19,
+                                backgroundColor: categoryColor.withValues(alpha: 0.12),
+                                child: Icon(
+                                  Icons.category_outlined,
+                                  size: 19,
+                                  color: categoryColor,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,26 +209,24 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                                             color: AppColors.textSecondary,
                                           ),
                                     ),
+                                    const SizedBox(height: 8),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(3),
+                                      child: LinearProgressIndicator(
+                                        value: progress,
+                                        minHeight: 5,
+                                        backgroundColor: AppColors.divider,
+                                        color: isOver
+                                            ? AppColors.expense
+                                            : isWarning
+                                                ? const Color(0xFFD58B17)
+                                                : const Color(0xFF35343A),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                width: 58,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(3),
-                                  child: LinearProgressIndicator(
-                                    value: progress,
-                                    minHeight: 7,
-                                    backgroundColor: AppColors.divider,
-                                    color: isOver
-                                        ? AppColors.expense
-                                        : isWarning
-                                            ? const Color(0xFFD58B17)
-                                            : const Color(0xFF35343A),
-                                  ),
-                                ),
-                              ),
+                              const SizedBox(width: 10),
                               Icon(
                                 isOver ? Icons.warning_amber_rounded : Icons.chevron_right,
                                 color: isOver ? AppColors.expense : AppColors.textLight,
@@ -308,6 +316,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         _selectedYear = picked.year;
       });
     }
+  }
+
+  Color _colorFromHex(String? value) {
+    final hex = (value ?? '').replaceAll('#', '');
+    if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
+    return AppColors.primary;
   }
 
 }

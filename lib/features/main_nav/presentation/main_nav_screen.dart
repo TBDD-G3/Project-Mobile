@@ -37,61 +37,36 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE5E6E8),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth > 440 ? 440.0 : constraints.maxWidth;
-          return Center(
-            child: SizedBox(
-              width: width,
-              height: constraints.maxHeight,
-              child: ColoredBox(
-                color: Colors.white,
-                child: IndexedStack(
-                  index: _currentIndex,
-                  children: screens,
-                ),
-              ),
-            ),
-          );
-        },
+      body: IndexedStack(
+        index: _currentIndex,
+        children: screens,
       ),
-      bottomNavigationBar: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth > 440 ? 440.0 : constraints.maxWidth;
-          return Center(
-            child: SizedBox(
-              width: width,
-              child: NavigationBar(
-                selectedIndex: _currentIndex,
-                onDestinationSelected: (index) => setState(() => _currentIndex = index),
-                indicatorColor: AppColors.primaryLight.withValues(alpha: 0.3),
-                destinations: const [
-                  NavigationDestination(
-                    icon: Icon(Icons.account_balance_wallet_outlined),
-                    selectedIcon: Icon(Icons.account_balance_wallet, color: AppColors.primaryDark),
-                    label: 'Ví tiền',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.receipt_long_outlined),
-                    selectedIcon: Icon(Icons.receipt_long, color: Colors.orange),
-                    label: 'Giao dịch',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.pie_chart_outline),
-                    selectedIcon: Icon(Icons.pie_chart, color: Colors.purple),
-                    label: 'Ngân sách',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.insights_outlined),
-                    selectedIcon: Icon(Icons.insights, color: Colors.blue),
-                    label: 'Báo cáo',
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        indicatorColor: AppColors.primaryLight.withValues(alpha: 0.3),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: Icon(Icons.account_balance_wallet, color: AppColors.primaryDark),
+            label: 'Ví tiền',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long, color: Colors.orange),
+            label: 'Giao dịch',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.pie_chart_outline),
+            selectedIcon: Icon(Icons.pie_chart, color: Colors.purple),
+            label: 'Ngân sách',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.insights_outlined),
+            selectedIcon: Icon(Icons.insights, color: Colors.blue),
+            label: 'Báo cáo',
+          ),
+        ],
       ),
     );
   }

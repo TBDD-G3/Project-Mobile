@@ -35,7 +35,6 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Báo cáo'),
-        centerTitle: false,
         actions: [
           IconButton(
             tooltip: 'Lọc báo cáo',
@@ -123,14 +122,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   }
 
   String get _filterLabel {
-    final now = DateTime.now();
-    final isCurrentMonth = _start.year == now.year &&
-        _start.month == now.month &&
-        _start.day == 1 &&
-        _endExclusive == DateTime(now.year, now.month, now.day + 1);
-    final period = isCurrentMonth ? 'Tháng này' : 'Tùy chỉnh';
-    final wallet = _walletId == null ? 'Tất cả ví' : 'Đã lọc ví';
-    return '$period  ·  $wallet';
+    if (_walletId == null) return 'Tùy chỉnh  ·  Tất cả ví';
+    return 'Tùy chỉnh  ·  Đã lọc ví';
   }
 
   Future<void> _openFilters() async {
