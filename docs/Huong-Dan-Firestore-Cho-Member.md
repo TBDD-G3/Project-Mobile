@@ -18,19 +18,17 @@ Nên toàn bộ dữ liệu (`AppUser`, `Wallet`, `Category`, `Transaction`, `Bu
 **Quan trọng:** nhánh cũ từ tháng 9 của các bạn vẫn còn code Drift/SQLite, nên làm đúng mấy lệnh dưới đây để khỏi bị conflict:
 
 ```bash
-# 1. Lưu tạm hoặc tạo nhánh backup từ nhánh cũ (nếu muốn giữ code UI cũ để tham khảo)
-git branch backup-old-code
-
+# 1. Giữ nhánh cũ tháng 9 làm bằng chứng lịch sử commit (Câu 10) — không xóa
 # 2. Chuyển về develop và cập nhật code mới nhất từ Leader
 git fetch origin
 git checkout develop
 git reset --hard origin/develop
 
-# 3. Tạo lại nhánh làm việc mới từ develop sạch
+# 3. Tạo nhánh làm việc MỚI có hậu tố -v2 (không dùng -B, không ghi đè nhánh cũ)
 # - Member 2 (Hải Đăng):
-git checkout -B feature/member2-transaction-category
+git checkout -b feature/member2-transaction-category-v2
 # - Member 3:
-git checkout -B feature/member3-budget-analytics
+git checkout -b feature/member3-budget-analytics-v2
 
 # 4. Cài dependencies và chạy thử
 flutter pub get
@@ -86,51 +84,50 @@ final list = (await ref.get()).docs.map((d) => d.data()).toList(); // tự gọi
 
 Xem file `lib/features/wallet/data/repositories/firestore_wallet_repository.dart` và `mock_wallet_repository.dart` — đây là **mẫu chuẩn**. Các bạn viết `CategoryRepository`, `TransactionRepository`, `BudgetRepository` theo đúng cấu trúc này (interface trước, implement sau).
 
-### 3.3. Design System — giao diện theo mẫu Agoda (làm theo cho giống nhau)
+### 3.3. Design System — giao diện xanh lá (làm theo cho giống nhau)
 
 Toàn bộ UI mới phải dùng **design tokens + widget có sẵn** để các màn hình của mọi người đồng nhất. Không tự chế màu/kiểu mới.
+
+> Cập nhật 28/10: nhóm bỏ bản giao diện Agoda (xanh dương, pastel, bong bóng) và quay lại bảng màu **xanh lá** ở các commit đầu tiên. Ba widget `PastelTile`, `InsightCard`, `BubbleBottomNav` đã bị xóa khỏi project — đừng dùng.
 
 #### Màu (dùng qua `AppColors` trong `lib/core/constants/app_colors.dart`)
 
 | Token | Giá trị | Dùng cho |
 |---|---|---|
-| `primary` | `#3F82EF` | tab active, link, nút CTA |
-| `primaryLink` | `#2067DA` | link "Xem chi tiết" |
-| `textPrimary` / `textSecondary` | `#191919` / `#64748B` | chữ chính / meta |
-| `hairline` | `#EDEEEF` | **viền card 1px thay cho shadow** |
-| `badge` | `#C53829` | badge đỏ |
-| `mintChip` + `mintChipIcon` | `#E2F2E5` / `#00622F` | chip số dư trên appbar |
-| `pastelIncome`…`pastelSaving` | xem file | nền tile/icon (5 màu pastel) |
+| `primary` | `#2E7D32` | tab active, link, nút CTA |
+| `primaryDark` | `#1B5E20` | chữ trên nền xanh nhạt |
+| `primaryLight` | `#81C784` | gradient, trang trí |
+| `primarySoft` | `#E8F5E9` | nền chip / băng thông tin |
+| `background` | `#F8F9FA` | nền màn hình |
+| `surfaceMuted` + `surfaceMutedBorder` | `#F0F1F4` / `#D1D5DB` | card tổng, khung trạng thái rỗng |
+| `textPrimary` / `textSecondary` | `#1E293B` / `#64748B` | chữ chính / meta |
+| `border` / `divider` | `#E2E8F0` / `#F1F5F9` | viền card, đường kẻ |
 | `income` / `expense` / `transfer` | `#10B981` / `#EF4444` / `#3B82F6` | **chỉ cho số tiền** |
-| `radiusTile/Card/Chip/Sheet/Button` | 24/16/10/24/12 | bo góc |
+| `radiusCard` / `radiusSheet` / `radiusButton` | 12 / 16 / 10 | bo góc |
 
-Quy tắc vàng: **số tiền không bao giờ đặt trên nền pastel** — chỉ nền trắng/trung tính.
+Quy tắc vàng: **số tiền chỉ đặt trên nền trắng hoặc nền xám rất nhạt**.
 
 #### Widget dùng chung (`lib/core/widgets/`)
 
 ```dart
-import 'package:project_mobile/core/widgets/pastel_tile.dart';
 import 'package:project_mobile/core/widgets/section_header.dart';
 import 'package:project_mobile/core/widgets/amount_text.dart';
 import 'package:project_mobile/core/widgets/empty_state.dart';
 import 'package:project_mobile/core/widgets/primary_button.dart';
-import 'package:project_mobile/core/widgets/insight_card.dart';
 ```
 
 | Widget | Cách dùng |
 |---|---|
-| `PastelTile(label, icon, background, onTap)` | tile nền pastel bo 24, icon tràn mép — dùng cho lưới chức năng/danh mục |
-| `SectionHeader(title, actionLabel, onAction)` | tiêu đề section w800 + action phải |
+| `SectionHeader(title, actionLabel, onAction)` | tiêu đề section đậm + action bên phải |
 | `AmountText(amount, kind)` | số tiền có dấu +/− đúng màu |
-| `EmptyState(icon, title, actionLabel, onAction)` | trạng thái rỗng + CTA |
-| `PrimaryButton(label, loading, onPressed)` | nút full-width đậm bo 12 |
-| `InsightCard(message, onAction)` | card khuyến nghị + link xanh |
+| `EmptyState(icon, title, subtitle, actionLabel, onAction)` | trạng thái rỗng + CTA |
+| `PrimaryButton(label, loading, onPressed)` | nút full-width đậm |
 
 #### Quy ước màn hình (đúng wireframe của nhóm)
 
-1. **Màn hình tab gốc**: không có nút back; nội dung nằm trong `Scaffold` + `SingleChildScrollView` padding ngang 16.
-2. **Mọi màn hình con** (thêm/sửa giao dịch, tạo hạn mức, chi tiết...): `AppBar` có **nút back** (mặc định khi `Navigator.push`) + title w800.
-3. **Form nhập liệu**: dùng **bottom sheet bo góc 24** (mẫu: `lib/features/wallet/presentation/add_edit_wallet_sheet.dart`) — tay cầm kéo + nút X + `PrimaryButton` đáy.
+1. **Màn hình tab gốc**: shell đã bọc `SafeArea`, mỗi tab tự dựng tiêu đề lớn (28, bold) + dòng mô tả xám (15) rồi mới tới nội dung; nội dung nằm trong `SingleChildScrollView` padding ngang 20.
+2. **Mọi màn hình con** (thêm/sửa giao dịch, tạo hạn mức, chi tiết...): `AppBar` có **nút back** (mặc định khi `Navigator.push`) + title đậm.
+3. **Form nhập liệu**: dùng **bottom sheet bo góc 16** (mẫu: `lib/features/wallet/presentation/add_edit_wallet_sheet.dart`) — tay cầm kéo + nút X + `PrimaryButton` đáy.
 4. **Xóa**: dialog xác nhận ở giữa màn hình, nút Hủy/Xóa.
 5. **Mọi thao tác Firestore**: bọc `try/catch` + hiện lỗi bằng SnackBar (Câu 8a).
 
@@ -138,7 +135,7 @@ import 'package:project_mobile/core/widgets/insight_card.dart';
 
 ## 4. Việc của Member 2 (Hải Đăng) — Transaction & Category
 
-Thực hiện trên nhánh `feature/member2-transaction-category`:
+Thực hiện trên nhánh `feature/member2-transaction-category-v2`:
 
 ### Bước 1 — CategoryRepository (`lib/features/category/data/repositories/`)
 
@@ -204,7 +201,7 @@ await walletRepo.updateBalance(walletId, delta);
 
 ### Bước 3 — UI & Unit Test
 
-1. Hoàn thiện `transaction_screen.dart` và `add_edit_transaction_sheet.dart` theo Agoda Design System.
+1. Hoàn thiện `transactions_screen.dart` (class `TransactionsScreen`) và `add_edit_transaction_sheet.dart` theo design system xanh lá ở mục 3.3.
 2. Viết unit test trong `test/transaction_repository_test.dart` (Câu 8b).
 3. Báo Leader để ghép vào `main_nav_screen.dart`.
 
@@ -212,7 +209,7 @@ await walletRepo.updateBalance(walletId, delta);
 
 ## 5. Việc của Member 3 — Budget & Analytics
 
-Thực hiện trên nhánh `feature/member3-budget-analytics`:
+Thực hiện trên nhánh `feature/member3-budget-analytics-v2`:
 
 ### Bước 1 — BudgetRepository (`lib/features/budget/data/repositories/`)
 
@@ -233,7 +230,7 @@ budgetsCollection(_db)
 
 ### Bước 3 — UI & Unit Test
 
-1. Hoàn thiện `budget_screen.dart` và `analytics_screen.dart` theo Agoda Design System.
+1. Hoàn thiện `budgets_screen.dart` (class `BudgetsScreen`) và `analytics_screen.dart` theo design system xanh lá ở mục 3.3.
 2. Viết unit test trong `test/budget_repository_test.dart` (Câu 8b).
 3. Báo Leader để ghép vào `main_nav_screen.dart`.
 

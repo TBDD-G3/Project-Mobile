@@ -10,7 +10,7 @@
 - **Toàn bộ Drift/SQLite đã bị xóa khỏi project.** Thư mục `lib/data/database/` không còn tồn tại.
 - **100% dữ liệu chuyển sang Firebase Firestore + Firebase Authentication** (đúng yêu cầu Câu 7 — ORM với Documents của Firebase).
 - 5 collection cố định: `users`, `wallets`, `categories`, `transactions`, `budgets` — mỗi bản ghi là 1 Document, chuyển đổi qua `fromDocument` / `toDocument`.
-- Nhánh `develop` và `main` trên GitHub đã được cập nhật đến tag `v1.0-framework-locked`. Shell app `MainNavScreen` đã gắn sẵn 4 tab, mỗi tab là file placeholder ghi tên người phụ trách.
+- Nhánh `develop` và `main` trên GitHub đã được cập nhật đến tag `v1.0-framework-locked`. Shell app `MainNavScreen` đã gắn sẵn 5 tab, mỗi tab là file placeholder ghi tên người phụ trách.
 
 ## 2. Bắt đầu từ khung mới (làm đúng 3 lệnh)
 
@@ -27,8 +27,8 @@ git checkout -b feature/<ten-ban>-<tinh-nang>-v2
 
 | Phạm vi | Quy tắc |
 |---|---|
-| `lib/features/main_nav/` | **Không ai được sửa.** Shell app, 4 tab, bottom nav đã chốt. |
-| `lib/core/` | Design system dùng chung (màu, theme, widget). Muốn thêm widget mới → tạo file mới, không sửa file cũ. |
+| `lib/features/main_nav/` | **Không ai được sửa.** Shell app, 5 tab, bottom nav đã chốt. |
+| `lib/core/` | Design system dùng chung (bảng màu xanh lá, theme, widget). Muốn thêm widget mới → tạo file mới, không sửa file cũ. |
 | `lib/data/firestore/firestore_collections.dart` | 5 collection + converter. Không tự thêm collection, không đổi tên. |
 | `lib/data/firestore/models/` | Model `AppUser, Wallet, Category, Transaction, Budget` — hợp đồng dữ liệu cố định. |
 | Repository pattern | Interface trừu tượng + impl Firestore + impl Mock cho test. Tên provider giữ cố định. |
