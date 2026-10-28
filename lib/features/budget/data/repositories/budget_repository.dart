@@ -72,8 +72,8 @@ class BudgetRepository {
             ..where(
               (t) =>
                   t.type.equals('expense') &
-                  t.date.month.equals(month) &
-                  t.date.year.equals(year) &
+                  t.date.isBiggerOrEqualValue(DateTime(year, month)) &
+                  t.date.isSmallerThanValue(DateTime(year, month + 1)) &
                   t.categoryId.isNotNull() &
                   t.categoryId.isIn(budgetCategoryIds),
             ))

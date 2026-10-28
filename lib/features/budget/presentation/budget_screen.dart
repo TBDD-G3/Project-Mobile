@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/database/app_database.dart';
 import '../providers/budget_providers.dart';
+import 'budget_detail_screen.dart';
+import 'budget_editor_screen.dart';
 
 class BudgetScreen extends ConsumerStatefulWidget {
   const BudgetScreen({super.key});
@@ -14,7 +17,6 @@ class BudgetScreen extends ConsumerStatefulWidget {
 class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   late int _selectedMonth;
   late int _selectedYear;
-  final Map<String, TextEditingController> _controllers = {};
 
   @override
   void initState() {
@@ -25,222 +27,385 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   @override
-  void dispose() {
-    for (final controller in _controllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  void _changePeriod({int? month, int? year}) {
-    for (final controller in _controllers.values) {
-      controller.dispose();
-    }
-    _controllers.clear();
-    setState(() {
-      _selectedMonth = month ?? _selectedMonth;
-      _selectedYear = year ?? _selectedYear;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final rowsAsync = ref.watch(budgetRowsProvider((month: _selectedMonth, year: _selectedYear)));
-    final summaryAsync = ref.watch(budgetSummaryProvider((month: _selectedMonth, year: _selectedYear)));
+    final period = (month: _selectedMonth, year: _selectedYear);
+    final rowsAsync = ref.watch(budgetRowsProvider(period));
+    final summaryAsync = ref.watch(budgetSummaryProvider(period));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ngân sách theo tháng'),
+        title: const Text('Ngân sách'),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            tooltip: 'Chọn tháng',
+            icon: const Icon(Icons.calendar_month_outlined),
+            onPressed: _pickPeriod,
+          ),
+        ],
       ),
       body: rowsAsync.when(
         data: (rows) {
+          final budgetRows = rows.where((row) => row.budgetAmount > 0).toList();
+
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
             children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Chọn thời gian',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<int>(
-                              initialValue: _selectedMonth,
-                              items: List.generate(12, (index) => index + 1)
-                                  .map((month) => DropdownMenuItem(value: month, child: Text('Tháng $month')))
-                                  .toList(),
-                              onChanged: (value) {
-                                if (value != null) {
-                                  _changePeriod(month: value);
-                                }
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: DropdownButtonFormField<int>(
-                              initialValue: _selectedYear,
-                              items: List.generate(4, (index) => DateTime.now().year - index)
-                                  .map((year) => DropdownMenuItem(value: year, child: Text('$year')))
-                                  .toList(),
-                              onChanged: (value) {
-                                if (value != null) {
-                                  _changePeriod(year: value);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              Text(
+                Formatters.formatMonthYear(_selectedMonth, _selectedYear),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
               ),
               const SizedBox(height: 16),
               summaryAsync.when(
-                data: (summary) => Card(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
+                data: (summary) {
+                  final ratio = summary.totalBudget <= 0
+                      ? 0.0
+                      : (summary.spentAmount / summary.totalBudget).clamp(0.0, 1.0);
+                  final isOverBudget = summary.remainingAmount < 0;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                            color: const Color(0xFFF0F0F3),
+                            border: Border.all(color: const Color(0xFFD4D5DA)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Tổng ngân sách'),
                             Text(
-                              Formatters.formatCurrency(summary.totalBudget),
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                              'ĐÃ CHI / HẠN MỨC',
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                             ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            const Text('Còn lại'),
-                            Text(
-                              Formatters.formatCurrency(summary.remainingAmount),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: summary.remainingAmount >= 0 ? AppColors.primaryDark : AppColors.expense,
+                            const SizedBox(height: 8),
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 6,
+                              children: [
+                                Text(
+                                  Formatters.formatCurrency(summary.spentAmount),
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                        color: isOverBudget ? AppColors.expense : AppColors.textPrimary,
+                                      ),
+                                ),
+                                Text(
+                                  '/ ${Formatters.formatCurrency(summary.totalBudget)}',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: ratio,
+                                minHeight: 8,
+                                backgroundColor: AppColors.divider,
+                                color: isOverBudget ? AppColors.expense : const Color(0xFF35343A),
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      if (budgetRows.any((row) {
+                        final spent = summary.categorySpending[row.category.id] ?? 0;
+                        return row.budgetAmount > 0 && spent / row.budgetAmount >= 0.8;
+                      })) ...[
+                        const SizedBox(height: 12),
+                        _BudgetAlert(
+                          rows: budgetRows,
+                          spending: summary.categorySpending,
                         ),
                       ],
+                    ],
+                  );
+                },
+                loading: () => const LinearProgressIndicator(),
+                error: (error, _) => _InlineError(message: 'Không tải được tổng ngân sách: $error'),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Theo danh mục',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
                   ),
-                ),
-                loading: () => const SizedBox.shrink(),
-                error: (err, _) => const SizedBox.shrink(),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Hạn mức theo danh mục',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              ...rows.map((row) {
-                final category = row.category;
-                final controller = _controllers.putIfAbsent(
-                  category.id,
-                  () => TextEditingController(text: row.budgetAmount.toStringAsFixed(0)),
-                );
-
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: _colorFromHex(category.colorHex ?? '#64748B').withValues(alpha: 0.15),
-                          child: Icon(
-                            Icons.category,
-                            color: _colorFromHex(category.colorHex ?? '#64748B'),
-                          ),
+                  Text(
+                    '${budgetRows.length} hạn mức',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (budgetRows.isEmpty)
+                const _EmptyBudgetState()
+              else
+                ...budgetRows.map((row) {
+                  final spentAsync = summaryAsync.valueOrNull;
+                  final spent = spentAsync?.categorySpending[row.category.id] ?? 0;
+                  final progress = (spent / row.budgetAmount).clamp(0.0, 1.0);
+                  final isOver = spent > row.budgetAmount;
+                  final isWarning = spent / row.budgetAmount >= 0.8;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Material(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () => _openDetail(
+                          category: row.category,
+                          amount: row.budgetAmount,
+                          spent: spent,
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.border),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
                             children: [
-                              Text(
-                                category.name,
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 6),
-                              TextField(
-                                controller: controller,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                decoration: const InputDecoration(
-                                  hintText: 'Nhập hạn mức',
-                                  isDense: true,
-                                  border: OutlineInputBorder(),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      row.category.name,
+                                      style: const TextStyle(fontWeight: FontWeight.w700),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      '${Formatters.formatCurrency(spent)} / ${Formatters.formatCurrency(row.budgetAmount)}',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                    ),
+                                  ],
                                 ),
-                                onChanged: (value) {
-                                  final parsed = double.tryParse(value) ?? 0;
-                                  row.amount = parsed;
-                                },
+                              ),
+                              const SizedBox(width: 12),
+                              SizedBox(
+                                width: 58,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(3),
+                                  child: LinearProgressIndicator(
+                                    value: progress,
+                                    minHeight: 7,
+                                    backgroundColor: AppColors.divider,
+                                    color: isOver
+                                        ? AppColors.expense
+                                        : isWarning
+                                            ? const Color(0xFFD58B17)
+                                            : const Color(0xFF35343A),
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                isOver ? Icons.warning_amber_rounded : Icons.chevron_right,
+                                color: isOver ? AppColors.expense : AppColors.textLight,
                               ),
                             ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
             ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Lỗi: $err')),
+        error: (error, _) => _InlineError(message: 'Không tải được ngân sách: $error'),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final repo = ref.read(budgetRepositoryProvider);
-          final rows = await ref.read(budgetRowsProvider((month: _selectedMonth, year: _selectedYear)).future);
-
-          for (final row in rows) {
-            final value = double.tryParse(_controllers[row.category.id]?.text ?? '0') ?? 0;
-            await repo.upsertBudget(
-              categoryId: row.category.id,
-              month: _selectedMonth,
-              year: _selectedYear,
-              limitAmount: value,
-            );
-          }
-
-          ref.invalidate(budgetRowsProvider((month: _selectedMonth, year: _selectedYear)));
-          ref.invalidate(budgetSummaryProvider((month: _selectedMonth, year: _selectedYear)));
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Đã lưu hạn mức ngân sách.')),
-            );
-          }
-        },
-        icon: const Icon(Icons.save),
-        label: const Text('Lưu ngân sách'),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+        child: FilledButton.icon(
+          onPressed: () => _openEditor(),
+          icon: const Icon(Icons.add),
+          label: const Text('Tạo hạn mức'),
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFF35343A),
+            foregroundColor: Colors.white,
+            minimumSize: const Size.fromHeight(48),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          ),
+        ),
       ),
     );
   }
 
-  Color _colorFromHex(String value) {
-    final hex = value.replaceAll('#', '');
-    if (hex.length == 6) {
-      return Color(int.parse('FF$hex', radix: 16));
+  Future<void> _openEditor({String? categoryId, double? amount}) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => BudgetEditorScreen(
+          month: _selectedMonth,
+          year: _selectedYear,
+          categoryId: categoryId,
+          amount: amount,
+        ),
+      ),
+    );
+    if (mounted) {
+      ref.invalidate(budgetRowsProvider((month: _selectedMonth, year: _selectedYear)));
+      ref.invalidate(budgetSummaryProvider((month: _selectedMonth, year: _selectedYear)));
     }
-    return AppColors.primary;
   }
 
+  Future<void> _openDetail({
+    required Category category,
+    required double amount,
+    required double spent,
+  }) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => BudgetDetailScreen(
+          category: category,
+          month: _selectedMonth,
+          year: _selectedYear,
+          limitAmount: amount,
+          spentAmount: spent,
+        ),
+      ),
+    );
+    if (mounted) {
+      ref.invalidate(budgetRowsProvider((month: _selectedMonth, year: _selectedYear)));
+      ref.invalidate(budgetSummaryProvider((month: _selectedMonth, year: _selectedYear)));
+    }
+  }
+
+  Future<void> _pickPeriod() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(_selectedYear, _selectedMonth),
+      firstDate: DateTime(now.year - 5),
+      lastDate: DateTime(now.year + 2, 12),
+      initialDatePickerMode: DatePickerMode.year,
+      helpText: 'Chọn kỳ ngân sách',
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedMonth = picked.month;
+        _selectedYear = picked.year;
+      });
+    }
+  }
+
+}
+
+class _BudgetAlert extends StatelessWidget {
+  final List<BudgetRow> rows;
+  final Map<String, double> spending;
+
+  const _BudgetAlert({required this.rows, required this.spending});
+
+  @override
+  Widget build(BuildContext context) {
+    final alerts = rows.where((row) {
+      final spent = spending[row.category.id] ?? 0;
+      return row.budgetAmount > 0 && spent / row.budgetAmount >= 0.8;
+    }).toList();
+    final highest = alerts.first;
+    final spent = spending[highest.category.id] ?? 0;
+    final isOver = spent > highest.budgetAmount;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isOver ? const Color(0xFFFFF1F0) : const Color(0xFFFFF8E8),
+        border: Border.all(color: isOver ? const Color(0xFFFFD1CC) : const Color(0xFFF2D99A)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            isOver ? Icons.warning_amber_rounded : Icons.info_outline,
+            size: 19,
+            color: isOver ? AppColors.expense : const Color(0xFFA66B00),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              isOver
+                  ? '${highest.category.name} đã vượt hạn mức ${Formatters.formatCurrency(spent - highest.budgetAmount)}.'
+                  : '${highest.category.name} đã sử dụng ${(spent / highest.budgetAmount * 100).round()}% hạn mức.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textPrimary,
+                    height: 1.35,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyBudgetState extends StatelessWidget {
+  const _EmptyBudgetState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.pie_chart_outline, size: 32, color: AppColors.textLight),
+          const SizedBox(height: 10),
+          Text(
+            'Chưa có hạn mức trong tháng này',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Tạo hạn mức để theo dõi chi tiêu theo danh mục.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InlineError extends StatelessWidget {
+  final String message;
+
+  const _InlineError({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Text(message, style: const TextStyle(color: AppColors.expense)),
+    );
+  }
 }

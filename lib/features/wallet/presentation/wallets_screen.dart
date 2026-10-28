@@ -107,8 +107,10 @@ class WalletsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Tiêu đề danh sách
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runSpacing: 4,
               children: [
                 const Text(
                   'Danh sách ví của bạn',
