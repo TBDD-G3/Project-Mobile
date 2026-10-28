@@ -33,6 +33,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Ví tiền'), findsWidgets);
+    expect(find.text('Tổng quan tài sản'), findsOneWidget);
     expect(find.text('TỔNG SỐ DƯ'), findsOneWidget);
     expect(find.text('Tiền mặt'), findsWidgets);
     expect(find.text('Vietcombank'), findsOneWidget);
@@ -40,5 +41,6 @@ void main() {
     expect(find.text('Giao dịch'), findsWidgets);
     expect(find.text('Ngân sách'), findsWidgets);
     expect(find.text('Báo cáo'), findsWidgets);
+    expect(find.text('Đấu giá'), findsWidgets);
   });
 }

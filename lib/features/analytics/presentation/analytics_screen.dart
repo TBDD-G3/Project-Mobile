@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/empty_state.dart';
 
 /// Màn báo cáo + biểu đồ (fl_chart). Thành viên 3 phụ trách.
@@ -12,12 +11,38 @@ class AnalyticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const EmptyState(
-      icon: Icons.bar_chart_rounded,
-      background: AppColors.pastelTransfer,
-      title: 'Báo cáo & Phân tích',
-      subtitle:
-          'Tính năng do Thành viên 3 phát triển (Biểu đồ thu chi, tỷ lệ chi tiêu)',
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Báo cáo',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'Thu chi theo tháng',
+                style: TextStyle(fontSize: 15, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: EmptyState(
+            icon: Icons.bar_chart_rounded,
+            title: 'Chưa có dữ liệu',
+            subtitle: 'Thành viên 3 đang phát triển phần này.',
+          ),
+        ),
+      ],
     );
   }
 }

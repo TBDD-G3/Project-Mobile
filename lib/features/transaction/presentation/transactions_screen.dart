@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/empty_state.dart';
 
 /// Màn giao dịch thu/chi/chuyển khoản. Thành viên 2 (Hải Đăng) phụ trách.
@@ -12,12 +11,38 @@ class TransactionsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const EmptyState(
-      icon: Icons.swap_horiz_rounded,
-      background: AppColors.pastelExpense,
-      title: 'Giao dịch (Thu / Chi)',
-      subtitle:
-          'Tính năng do Thành viên 2 phát triển (Ghi chép giao dịch, lọc theo danh mục)',
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Giao dịch',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'Thu · Chi · Chuyển khoản',
+                style: TextStyle(fontSize: 15, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: EmptyState(
+            icon: Icons.swap_horiz_rounded,
+            title: 'Chưa có giao dịch',
+            subtitle: 'Thành viên 2 (Hải Đăng) đang phát triển phần này.',
+          ),
+        ),
+      ],
     );
   }
 }

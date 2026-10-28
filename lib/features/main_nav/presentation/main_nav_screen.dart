@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/firebase/firebase_providers.dart';
-import '../../../core/utils/formatters.dart';
-import '../../../core/widgets/bubble_bottom_nav.dart';
 import '../../analytics/presentation/analytics_screen.dart';
+import '../../auction/presentation/auction_session_screen.dart';
 import '../../budget/presentation/budgets_screen.dart';
 import '../../transaction/presentation/transactions_screen.dart';
 import '../../wallet/presentation/wallets_screen.dart';
-import '../../wallet/providers/wallet_providers.dart';
+import 'widgets/custom_bottom_nav_bar.dart';
 
-/// Shell chung của cả app: AppBar kèm chip số dư, 4 tab đã gắn sẵn màn hình
-/// của từng thành viên, bottom nav kiểu Agoda.
+/// Shell chung của cả app: 5 tab đã gắn sẵn màn hình của từng thành viên,
+/// bottom nav kiểu gạch chân như các commit đầu tiên.
+///
+/// Tab chỉ được dựng khi mở lần đầu (giữ state sau đó) để màn Phiên Đấu Giá
+/// không chạy đồng hồ đếm ngược khi người dùng chưa xem.
 ///
 /// Các thành viên không sửa file này.
-/// - Member 1 (Leader): làm trong `lib/features/wallet/` và `lib/features/auth/`
+/// - Member 1 (Leader): làm trong `lib/features/wallet/`, `lib/features/auth/`
+///   và `lib/features/auction/`
 /// - Member 2 (Hải Đăng): làm trong `lib/features/transaction/` và `lib/features/category/`
 /// - Member 3: làm trong `lib/features/budget/` và `lib/features/analytics/`
 class MainNavScreen extends ConsumerStatefulWidget {
@@ -27,6 +29,7 @@ class MainNavScreen extends ConsumerStatefulWidget {
 
 class _MainNavScreenState extends ConsumerState<MainNavScreen> {
   int _currentIndex = 0;
+  final Set<int> _visited = {0};
 
   @override
   void initState() {
@@ -34,104 +37,41 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> {
     Future.microtask(() => ref.read(firebaseSeedProvider));
   }
 
+  Widget _screenFor(int index) {
+    switch (index) {
+      case 0:
+        return const WalletsScreen();
+      case 1:
+        return const TransactionsScreen();
+      case 2:
+        return const BudgetsScreen();
+      case 3:
+        return const AnalyticsScreen();
+      default:
+        return const AuctionSessionScreen();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    const screens = [
-      WalletsScreen(),
-      TransactionsScreen(),
-      BudgetsScreen(),
-      AnalyticsScreen(),
-    ];
-
-    final totalBalance = ref.watch(totalBalanceProvider).value ?? 0.0;
-
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text(
-          'Expense Tracker',
-          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: IndexedStack(
+          index: _currentIndex,
+          children: [
+            for (var i = 0; i < CustomBottomNavBar.tabs.length; i++)
+              _visited.contains(i) ? _screenFor(i) : const SizedBox.shrink(),
+          ],
         ),
-        actions: [
-          _BalanceChip(balance: totalBalance),
-          const SizedBox(width: 16),
-        ],
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
-      bottomNavigationBar: BubbleBottomNav(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BubbleBottomNavItem(
-            icon: Icons.account_balance_wallet_outlined,
-            label: 'Ví tiền',
-          ),
-          BubbleBottomNavItem(
-            icon: Icons.receipt_long_outlined,
-            label: 'Giao dịch',
-          ),
-          BubbleBottomNavItem(
-            icon: Icons.pie_chart_outline,
-            label: 'Ngân sách',
-          ),
-          BubbleBottomNavItem(
-            icon: Icons.insights_outlined,
-            label: 'Báo cáo',
-          ),
-        ],
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() {
+          _currentIndex = index;
+          _visited.add(index);
+        }),
       ),
     );
-  }
-}
-
-/// Chip số dư trên AppBar (kiểu chip `đ 734K` của Agoda).
-class _BalanceChip extends StatelessWidget {
-  final double balance;
-
-  const _BalanceChip({required this.balance});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.mintChip,
-        borderRadius: BorderRadius.circular(AppColors.radiusChip),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.savings_outlined,
-            size: 16,
-            color: AppColors.mintChipIcon,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            'Số dư: ${_compactMoney(balance)}',
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Rút gọn số tiền cho vừa chip: 32,5 tr / 1,2 tỷ, dưới 1 triệu thì để nguyên.
-  String _compactMoney(double value) {
-    if (value.abs() >= 1000000000) {
-      return '${(value / 1000000000).toStringAsFixed(1)} tỷ';
-    }
-    if (value.abs() >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(1)} tr';
-    }
-    return Formatters.formatCurrency(value);
   }
 }

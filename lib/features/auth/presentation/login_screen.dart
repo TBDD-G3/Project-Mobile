@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/primary_button.dart';
-import '../../auction/presentation/auction_session_screen.dart';
 import '../providers/auth_providers.dart';
 import 'register_screen.dart';
 
@@ -108,7 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 72,
                       height: 72,
                       decoration: BoxDecoration(
-                        color: AppColors.pastelBudget,
+                        color: AppColors.primarySoft,
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: const Icon(
@@ -204,7 +203,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             fontWeight: FontWeight.w700,
                             color: _resettingPassword
                                 ? AppColors.textLight
-                                : AppColors.primaryLink,
+                                : AppColors.primary,
                           ),
                         ),
                       ),
@@ -246,28 +245,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const AuctionSessionScreen(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.gavel_outlined, size: 18),
-                        label: const Text(
-                          'Màn hình Phiên Đấu Giá (Câu 5)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
                       ),
                     ),
                   ],
