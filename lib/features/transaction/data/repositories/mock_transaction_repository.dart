@@ -22,9 +22,18 @@ class MockTransactionRepository implements TransactionRepository {
 
   void _emit() => _changes.add(null);
 
-  Stream<List<Transaction>> _watch(List<Transaction> Function() select) async* {
-    yield select();
-    yield* _changes.stream.map((_) => select());
+  Stream<List<Transaction>> _watch(List<Transaction> Function() select) {
+    // Đăng ký nghe thay đổi ngay lúc listen để không bỏ lỡ sự kiện nào.
+    late final StreamController<List<Transaction>> out;
+    StreamSubscription<void>? sub;
+    out = StreamController<List<Transaction>>(
+      onListen: () {
+        out.add(select());
+        sub = _changes.stream.listen((_) => out.add(select()));
+      },
+      onCancel: () => sub?.cancel(),
+    );
+    return out.stream;
   }
 
   @override

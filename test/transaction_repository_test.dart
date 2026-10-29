@@ -43,7 +43,7 @@ Transaction _tx({
 
 /// Ví giả luôn lỗi khi cập nhật số dư của ví [failOn].
 class _FailingWalletRepository extends MockWalletRepository {
-  _FailingWalletRepository(List<Wallet> wallets, this.failOn) : super(wallets);
+  _FailingWalletRepository(super.wallets, this.failOn);
 
   final String failOn;
 

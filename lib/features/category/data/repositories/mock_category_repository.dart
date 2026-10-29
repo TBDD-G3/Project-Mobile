@@ -27,9 +27,18 @@ class MockCategoryRepository implements CategoryRepository {
   void _emit() => _controller.add(_snapshot());
 
   @override
-  Stream<List<Category>> watchAll() async* {
-    yield _snapshot();
-    yield* _controller.stream;
+  Stream<List<Category>> watchAll() {
+    // Đăng ký nghe thay đổi ngay lúc listen để không bỏ lỡ sự kiện nào.
+    late final StreamController<List<Category>> out;
+    StreamSubscription<List<Category>>? sub;
+    out = StreamController<List<Category>>(
+      onListen: () {
+        out.add(_snapshot());
+        sub = _controller.stream.listen(out.add);
+      },
+      onCancel: () => sub?.cancel(),
+    );
+    return out.stream;
   }
 
   @override

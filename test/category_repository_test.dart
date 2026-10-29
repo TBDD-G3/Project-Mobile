@@ -66,12 +66,15 @@ void main() {
       expect(await repo.getById('c-salary'), isNotNull);
     });
 
-    test('getAll sắp xếp theo tên', () async {
-      await repo.insertCategory(_category(id: 'c-a', name: 'An'));
-      await repo.insertCategory(_category(id: 'c-z', name: 'Zebra'));
+    test('getAll sắp xếp theo tên (A–Z, không phân biệt hoa thường)', () async {
+      final sorted = MockCategoryRepository([
+        _category(id: 'c-z', name: 'Zebra'),
+        _category(id: 'c-a', name: 'an'),
+        _category(id: 'c-m', name: 'Mango'),
+      ]);
 
-      final names = (await repo.getAll()).map((c) => c.name).toList();
-      expect(names, ['An', 'Ăn uống', 'Zebra']);
+      final names = (await sorted.getAll()).map((c) => c.name).toList();
+      expect(names, ['an', 'Mango', 'Zebra']);
     });
 
     test('getById trả về null nếu không tồn tại', () async {

@@ -64,12 +64,33 @@ class _Env {
         MockTransactionRepository(initial: initial, walletRepository: wallets);
   }
 
+  /// Được gán trong _pumpScreen. Dùng để chạy các lời gọi async "thật"
+  /// (stream.first, Future của mock) ngoài FakeAsync của testWidgets,
+  /// nếu không `await` sẽ chờ mãi vì không có ai bơm microtask/timer.
+  WidgetTester? tester;
+
+  Future<T> _real<T>(Future<T> Function() body) async {
+    final t = tester;
+    if (t == null) return body();
+    return (await t.runAsync(body)) as T;
+  }
+
   Future<double> balanceOf(String walletId) async =>
-      (await wallets.getWalletById(walletId))!.balance;
+      (await _real(() => wallets.getWalletById(walletId)))!.balance;
 
   Future<List<Transaction>> thisMonth() {
     final now = DateTime.now();
-    return transactions.watchTransactionsByMonth(now.month, now.year).first;
+    return _real(
+      () => transactions.watchTransactionsByMonth(now.month, now.year).first,
+    );
+  }
+}
+
+/// Thay cho pumpAndSettle: chỉ bơm số frame cố định nên không bao giờ treo
+/// khi màn hình có animation chạy mãi (spinner, con trỏ nhấp nháy...).
+Future<void> _settle(WidgetTester tester, [int frames = 10]) async {
+  for (var i = 0; i < frames; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
   }
 }
 
@@ -78,7 +99,8 @@ Future<void> _pumpScreen(
   _Env env, {
   List<Override> overrides = const [],
 }) async {
-  tester.view.physicalSize = const Size(900, 2000);
+  env.tester = tester;
+  tester.view.physicalSize = const Size(900, 3600);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 
@@ -108,7 +130,7 @@ Future<void> _pumpScreen(
 
 Future<void> _openAddSheet(WidgetTester tester) async {
   await tester.tap(find.byType(FloatingActionButton));
-  await tester.pumpAndSettle();
+  await _settle(tester);
 }
 
 /// Điền form chi tiêu hợp lệ: 200.000đ, Ăn uống, ví Tiền mặt.
@@ -119,14 +141,14 @@ Future<void> _fillValidExpense(WidgetTester tester) async {
   );
 
   await tester.tap(find.byType(DropdownButtonFormField<String>).at(0));
-  await tester.pumpAndSettle();
+  await _settle(tester);
   await tester.tap(find.text('Ăn uống').last);
-  await tester.pumpAndSettle();
+  await _settle(tester);
 
   await tester.tap(find.byType(DropdownButtonFormField<String>).at(1));
-  await tester.pumpAndSettle();
+  await _settle(tester);
   await tester.tap(find.text('Tiền mặt').last);
-  await tester.pumpAndSettle();
+  await _settle(tester);
 }
 
 void main() {
@@ -150,7 +172,7 @@ void main() {
       tester,
     ) async {
       await _pumpScreen(tester, _Env());
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.text('Chưa có giao dịch trong tháng này'), findsOneWidget);
       expect(find.byIcon(Icons.more_vert), findsNothing);
@@ -160,7 +182,7 @@ void main() {
       tester,
     ) async {
       await _pumpScreen(tester, _Env(initial: [_expense(), _income()]));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.byIcon(Icons.more_vert), findsNWidgets(2));
       expect(find.textContaining('Phở bò'), findsOneWidget);
@@ -178,7 +200,7 @@ void main() {
           ),
         ],
       );
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.textContaining('Không tải được giao dịch'), findsOneWidget);
       expect(find.text('Thử lại'), findsOneWidget);
@@ -190,19 +212,19 @@ void main() {
       tester,
     ) async {
       await _pumpScreen(tester, _Env(initial: [_expense(), _income()]));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       await tester.tap(find.widgetWithText(ChoiceChip, 'Thu'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.byIcon(Icons.more_vert), findsOneWidget);
       expect(find.textContaining('Lương tháng'), findsOneWidget);
 
       await tester.tap(find.widgetWithText(ChoiceChip, 'Chuyển'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.text('Không có giao dịch phù hợp'), findsOneWidget);
 
       await tester.tap(find.text('Xóa bộ lọc'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.byIcon(Icons.more_vert), findsNWidgets(2));
     });
 
@@ -210,11 +232,11 @@ void main() {
       tester,
     ) async {
       await _pumpScreen(tester, _Env(initial: [_expense()]));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.byIcon(Icons.more_vert), findsOneWidget);
 
       await tester.tap(find.byTooltip('Tháng trước'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.byIcon(Icons.more_vert), findsNothing);
       expect(find.text('Chưa có giao dịch trong tháng này'), findsOneWidget);
@@ -227,11 +249,11 @@ void main() {
     ) async {
       final env = _Env();
       await _pumpScreen(tester, env);
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await _openAddSheet(tester);
 
       await tester.tap(find.text('Lưu'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.text('Vui lòng nhập số tiền'), findsOneWidget);
       expect(find.text('Vui lòng chọn danh mục'), findsOneWidget);
@@ -241,7 +263,7 @@ void main() {
 
     testWidgets('validate: số tiền bằng 0 bị từ chối', (tester) async {
       await _pumpScreen(tester, _Env());
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await _openAddSheet(tester);
 
       await tester.enterText(
@@ -249,7 +271,7 @@ void main() {
         '0',
       );
       await tester.tap(find.text('Lưu'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.text('Số tiền phải lớn hơn 0'), findsOneWidget);
     });
@@ -258,13 +280,13 @@ void main() {
       tester,
     ) async {
       await _pumpScreen(tester, _Env());
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await _openAddSheet(tester);
 
       await tester.tap(find.widgetWithText(ChoiceChip, 'Chuyển khoản'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await tester.tap(find.text('Lưu'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.text('Vui lòng chọn ví'), findsOneWidget);
       expect(find.text('Vui lòng chọn ví nhận'), findsOneWidget);
@@ -276,12 +298,12 @@ void main() {
     ) async {
       final env = _Env();
       await _pumpScreen(tester, env);
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await _openAddSheet(tester);
 
       await _fillValidExpense(tester);
       await tester.tap(find.text('Lưu'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       final saved = await env.thisMonth();
       expect(saved.length, 1);
@@ -297,12 +319,12 @@ void main() {
     testWidgets('lưu lỗi thì hiện SnackBar và giữ nguyên form', (tester) async {
       final env = _Env(transactionRepo: _FailingInsertRepository());
       await _pumpScreen(tester, env);
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await _openAddSheet(tester);
 
       await _fillValidExpense(tester);
       await tester.tap(find.text('Lưu'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.textContaining('Không lưu được giao dịch'), findsOneWidget);
       expect(find.text('Giao dịch mới'), findsOneWidget);
@@ -313,10 +335,10 @@ void main() {
     ) async {
       final env = _Env(initial: [_expense()]);
       await _pumpScreen(tester, env);
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       await tester.tap(find.textContaining('Phở bò'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.text('Sửa giao dịch'), findsOneWidget);
       expect(find.text('50000'), findsOneWidget);
 
@@ -325,7 +347,7 @@ void main() {
         '80000',
       );
       await tester.tap(find.text('Lưu'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       final updated = (await env.thisMonth()).single;
       expect(updated.amount, 80000);
@@ -341,28 +363,28 @@ void main() {
     ) async {
       final env = _Env(initial: [_expense(), _income()]);
       await _pumpScreen(tester, env);
-      await tester.pumpAndSettle();
+      await _settle(tester);
       final menuOfT1 = find.descendant(
         of: find.byKey(const ValueKey('tx-t1')),
         matching: find.byIcon(Icons.more_vert),
       );
 
       await tester.tap(menuOfT1);
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await tester.tap(find.text('Xóa'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.text('Xác nhận xóa'), findsOneWidget);
       await tester.tap(find.text('Hủy'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.byIcon(Icons.more_vert), findsNWidgets(2));
       expect(await env.balanceOf('mock-cash'), 1250000);
 
       await tester.tap(menuOfT1);
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await tester.tap(find.text('Xóa'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await tester.tap(find.text('Xóa'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.byIcon(Icons.more_vert), findsOneWidget);
       expect((await env.thisMonth()).map((t) => t.id), ['t2']);
@@ -372,12 +394,12 @@ void main() {
     testWidgets('menu Sửa mở form điền sẵn dữ liệu', (tester) async {
       final env = _Env(initial: [_expense()]);
       await _pumpScreen(tester, env);
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       await tester.tap(find.byIcon(Icons.more_vert));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await tester.tap(find.text('Sửa'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(find.text('Sửa giao dịch'), findsOneWidget);
       expect(find.text('50000'), findsOneWidget);
@@ -386,15 +408,15 @@ void main() {
     testWidgets('xóa từ form sửa cũng có hộp thoại xác nhận', (tester) async {
       final env = _Env(initial: [_expense()]);
       await _pumpScreen(tester, env);
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       await tester.tap(find.textContaining('Phở bò'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       await tester.tap(find.text('Xóa giao dịch'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
       expect(find.text('Xác nhận xóa'), findsOneWidget);
       await tester.tap(find.text('Xóa'));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       expect(await env.thisMonth(), isEmpty);
       expect(find.text('Sửa giao dịch'), findsNothing);
