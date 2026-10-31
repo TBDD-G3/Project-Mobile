@@ -16,3 +16,11 @@ final authServiceProvider = Provider<AuthService>((ref) {
 final currentUserProvider = StreamProvider<AppUser?>((ref) {
   return ref.watch(authServiceProvider).authStateChanges;
 });
+
+/// UID người đang đăng nhập (null khi chưa đăng nhập).
+///
+/// Provider nào đọc dữ liệu của user nên `ref.watch` provider này, để khi đăng
+/// xuất / đổi tài khoản nó tự dựng lại thay vì giữ stream cũ đã lỗi.
+final currentUserUidProvider = Provider<String?>((ref) {
+  return ref.watch(currentUserProvider).value?.id;
+});

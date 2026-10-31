@@ -13,14 +13,16 @@ class FirestoreWalletRepository implements WalletRepository {
 
   FirestoreWalletRepository(this._db);
 
-  /// Lấy uid của người đang đăng nhập để lọc ví.
-  String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? 'guest';
-
   @override
   Stream<List<Wallet>> watchAllWallets() {
+    // Chưa đăng nhập (hoặc auth còn đang khôi phục) thì trả rỗng, tránh query
+    // bằng uid giả rồi bị Firestore rules từ chối.
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return Stream.value(const <Wallet>[]);
+
     // Sort ở Dart cho khỏi phải tạo composite index cho where + orderBy.
     return walletsCollection(_db)
-        .where('userId', isEqualTo: _currentUserId)
+        .where('userId', isEqualTo: uid)
         .snapshots()
         .map((snapshot) {
           final wallets = snapshot.docs.map((doc) => doc.data()).toList();
