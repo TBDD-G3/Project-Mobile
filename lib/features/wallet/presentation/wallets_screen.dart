@@ -51,10 +51,45 @@ class WalletsScreen extends ConsumerWidget {
                     child: CircularProgressIndicator(),
                   ),
                 ),
-                error: (err, _) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  child: Center(child: Text('Lỗi tải danh sách ví: $err')),
-                ),
+                error: (err, _) {
+                  debugPrint('WALLETS STREAM ERROR: $err');
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.cloud_off,
+                          size: 36,
+                          color: AppColors.textLight,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Không tải được danh sách ví',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$err',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: () =>
+                              ref.invalidate(walletsStreamProvider),
+                          icon: const Icon(Icons.refresh, size: 18),
+                          label: const Text('Thử lại'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 96),
             ],
