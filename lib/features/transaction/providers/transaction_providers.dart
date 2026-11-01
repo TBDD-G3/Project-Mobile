@@ -1,11 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/firebase/firebase_providers.dart';
 import '../../../data/firestore/models/transaction.dart';
+import '../../wallet/providers/wallet_providers.dart';
+import '../data/repositories/firestore_transaction_repository.dart';
+import '../data/repositories/mock_transaction_repository.dart';
 import '../data/repositories/transaction_repository.dart';
+import 'transaction_filter.dart';
 
-/// Member 2 gắn `FirestoreTransactionRepository` vào đây.
+/// TransactionRepository dùng Firestore, cập nhật số dư ví qua
+/// `walletRepositoryProvider` của Leader.
+///
+/// Khi Firebase chưa được khởi tạo (chế độ `kUseMockData` hoặc widget test
+/// không override) thì dùng bản in-memory rỗng nối với ví hiện tại để app vẫn
+/// chạy được offline. Chạy thật thì Firebase luôn đã init nên không rơi vào
+/// nhánh này.
 final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
-  return _DefaultTransactionRepository();
+  final wallets = ref.watch(walletRepositoryProvider);
+  try {
+    final db = ref.watch(firebaseFirestoreProvider);
+    return FirestoreTransactionRepository(db, wallets);
+  } catch (_) {
+    return MockTransactionRepository(walletRepository: wallets);
+  }
 });
 
 /// Giao dịch theo tháng/năm. Member 3 dùng để vẽ biểu đồ xu hướng.
@@ -36,35 +53,18 @@ final transactionsByCategoryProvider =
       return result;
     });
 
-class _DefaultTransactionRepository implements TransactionRepository {
-  final List<Transaction> _items = [];
+/// Bộ lọc đang chọn trên màn Giao dịch (tháng, loại, ví, danh mục).
+final transactionFilterProvider = StateProvider<TransactionFilter>((ref) {
+  return TransactionFilter.forMonthOf(DateTime.now());
+});
 
-  @override
-  Stream<List<Transaction>> watchTransactionsByMonth(int month, int year) {
-    final filtered = _items
-        .where((t) => t.date.month == month && t.date.year == year)
-        .toList();
-    return Stream.value(filtered);
-  }
-
-  @override
-  Stream<List<Transaction>> watchByWallet(String walletId) {
-    return Stream.value(_items.where((t) => t.walletId == walletId).toList());
-  }
-
-  @override
-  Future<void> insertTransaction(Transaction transaction) async {
-    _items.insert(0, transaction);
-  }
-
-  @override
-  Future<void> updateTransaction(Transaction transaction) async {
-    final idx = _items.indexWhere((t) => t.id == transaction.id);
-    if (idx != -1) _items[idx] = transaction;
-  }
-
-  @override
-  Future<void> deleteTransaction(Transaction transaction) async {
-    _items.removeWhere((t) => t.id == transaction.id);
-  }
-}
+/// Giao dịch của tháng đang chọn, đã áp các bộ lọc loại/ví/danh mục.
+final filteredTransactionsProvider = Provider<AsyncValue<List<Transaction>>>((
+  ref,
+) {
+  final filter = ref.watch(transactionFilterProvider);
+  final monthAsync = ref.watch(
+    transactionsByMonthProvider((month: filter.month, year: filter.year)),
+  );
+  return monthAsync.whenData((items) => applyTransactionFilter(items, filter));
+});
