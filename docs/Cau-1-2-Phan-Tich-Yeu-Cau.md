@@ -8,22 +8,25 @@ Dữ liệu lưu trên Firebase Firestore với 5 collection: users, wallets, ca
 
 ## User Stories (Câu 1)
 
-Nhóm có 3 thành viên, mỗi thành viên phụ trách ít nhất 4 story, tổng cộng 14 user story viết theo định dạng "Là <vai trò>, tôi có thể <hành động> để <giá trị>".
+Nhóm có 3 thành viên, mỗi thành viên phụ trách ít nhất 4 story, tổng cộng 15 user story viết theo định dạng "Là <vai trò>, tôi có thể <hành động> để <giá trị>". Cột trạng thái trong báo cáo cho biết story nào đã chạy trên `develop`.
 
 1. Là người dùng mới, tôi có thể đăng ký tài khoản bằng email để dùng ứng dụng.
 2. Là người dùng, tôi có thể đăng nhập để vào màn hình chính.
 3. Là người dùng quên mật khẩu, tôi có thể yêu cầu đặt lại mật khẩu qua email.
-4. Là người dùng, tôi có thể tạo ví tiền với tên và số dư ban đầu.
-5. Là người dùng, tôi có thể sửa tên và số dư của ví để thông tin luôn đúng với thực tế.
-6. Là người dùng, tôi có thể xoá ví không còn dùng để danh sách ví gọn gàng.
-7. Là người dùng, tôi có thể xem tổng số dư của tất cả ví trên thanh trên cùng.
-8. Là người dùng, tôi có thể thêm giao dịch thu/chi với số tiền, danh mục và ghi chú.
-9. Là người dùng, tôi có thể xem danh sách giao dịch theo tháng.
-10. Là người dùng, tôi có thể xoá giao dịch đã ghi sai.
-11. Là người dùng, tôi có thể tạo danh mục riêng ngoài danh mục mặc định.
-12. Là người dùng, tôi có thể đặt hạn mức chi tiêu cho một danh mục trong tháng.
-13. Là người dùng, tôi có thể xem biểu đồ thu chi để biết thói quen chi tiêu.
-14. Là người dùng, tôi có thể đặt giá trong phiên đấu giá.
+4. Là người dùng, tôi có thể đăng xuất để bảo vệ dữ liệu khi dùng máy chung.
+5. Là người dùng, tôi có thể tạo ví tiền với tên và số dư ban đầu.
+6. Là người dùng, tôi có thể sửa tên hoặc xoá ví không còn dùng để danh sách ví đúng thực tế.
+7. Là người dùng, tôi có thể thêm giao dịch thu/chi với số tiền, danh mục và ghi chú.
+8. Là người dùng, tôi có thể sửa một giao dịch đã ghi để chữa lỗi nhập sai.
+9. Là người dùng, tôi có thể xoá giao dịch đã ghi sai.
+10. Là người dùng, tôi có thể xem danh sách giao dịch theo tháng.
+11. Là người dùng, tôi có thể lọc giao dịch theo danh mục và loại để tìm nhanh khoản cần kiểm tra.
+12. Là người dùng, tôi có thể tạo danh mục riêng ngoài danh mục mặc định.
+13. Là người dùng, tôi có thể đặt hạn mức chi tiêu cho một danh mục trong tháng.
+14. Là người dùng, tôi có thể nhận cảnh báo khi chi gần hoặc vượt hạn mức.
+15. Là người dùng, tôi có thể xem biểu đồ thu chi để biết thói quen chi tiêu.
+
+> Màn Phiên Đấu Giá là màn hình mẫu của Câu 5, không nằm trong danh sách user story nghiệp vụ.
 
 ## Phân tích đối tượng (Câu 2)
 
