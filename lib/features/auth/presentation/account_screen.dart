@@ -214,7 +214,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     setState(() => _signingOut = true);
     try {
       await ref.read(authServiceProvider).signOut();
-      // AuthGate tự chuyển về màn Đăng nhập khi user về null.
+      if (!mounted) return;
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       if (mounted) {
         setState(() => _signingOut = false);
