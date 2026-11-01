@@ -1,5 +1,6 @@
 docs/
 nop_final/
-nop_mobile/
+nop_mobile/*
+!nop_mobile/*.pdf
 BaoCao_VocabMaster1.docx
 Huong-Dan-Quay-Video.md

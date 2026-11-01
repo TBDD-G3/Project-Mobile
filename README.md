@@ -4,6 +4,27 @@
 
 ---
 
+## 📋 Đối chiếu yêu cầu Câu 1 – Câu 10
+
+> Báo cáo đầy đủ (bản PDF): [nhóm trưởng Minh](docs/nop_mobile/01_BaoCao_BTL_LTDM_Minh.pdf) · [Hải Đăng](docs/nop_mobile/01_BaoCao_BTL_LTDM_HaiDang.pdf) · [Đức Thịnh](docs/nop_mobile/01_BaoCao_BTL_LTDM_Thinh.pdf)
+
+| Câu | Nội dung | Trả lời ở đâu |
+| --- | --- | --- |
+| 1 | User stories | [docs/Cau-1-2-Phan-Tich-Yeu-Cau.md](docs/Cau-1-2-Phan-Tich-Yeu-Cau.md) mục 2.2 — 15 story |
+| 2 | Đối tượng, quan hệ, phương thức hoạt động | Cùng tệp, mục 2.3 – 2.5 |
+| 3 | Sơ đồ lớp và sơ đồ thuật toán | [docs/Cau-3-So-Do.md](docs/Cau-3-So-Do.md) — GitHub render Mermaid trực tiếp |
+| 4 | Wireframe và luồng công việc | [docs/wireframes/](docs/wireframes/) (7 màn hình) và Chương 3 của báo cáo |
+| 5 | Màn hình mẫu do giáo viên yêu cầu | [auction_session_screen.dart](lib/features/auction/presentation/auction_session_screen.dart) — Hình 26 trong báo cáo |
+| 6 | Code và logic của user story | [lib/features/](lib/features/) — mỗi feature 3 lớp UI → Provider → Repository; bảng ánh xạ ở mục 4.3 |
+| 7 | Kết nối CSDL và ORM với Document Firebase | [lib/data/firestore/](lib/data/firestore/) (model + `withConverter`) và [firestore.rules](firestore.rules) |
+| 8 | Kiểm thử và kiểm định | [test/](test/) — 105 test, xem chi tiết ở Chương 5 của báo cáo |
+| 9 | Báo cáo, video demo, đóng góp, đạo đức | PDF ở trên: Chương 6 (đạo đức, vụ kiện 22/10/2026) và Chương 8 (đóng góp từng thành viên). Video demo: _cập nhật trước khi nộp_ |
+| 10 | Lịch sử commit và chuyên cần | Lịch sử Git của 3 nhánh `-v2`, bảng thống kê commit ở Chương 8 |
+
+Kết quả kiểm thử mới nhất: `flutter analyze` không có lỗi, `flutter test` **105/105 pass**.
+
+---
+
 ## 👥 Phân chia công việc theo vai trò
 
 | Thành viên | Trách nhiệm chính | Nhánh Git |
@@ -27,12 +48,12 @@ git fetch origin
 git checkout develop
 git reset --hard origin/develop
 
-# Tạo lại nhánh làm việc từ develop sạch:
+# Tạo nhánh làm việc mới từ develop sạch (KHÔNG dùng -B, không ghi đè nhánh cũ):
 # Dành cho Member 2:
-git checkout -B feature/member2-transaction-category
+git checkout -b feature/member2-transaction-category-v2
 
 # Dành cho Member 3:
-git checkout -B feature/member3-budget-analytics
+git checkout -b feature/member3-budget-analytics-v2
 ```
 
 ### 2. Tải dependencies & Chạy ứng dụng
