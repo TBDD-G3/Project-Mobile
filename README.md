@@ -8,9 +8,9 @@
 
 | Thành viên | Trách nhiệm chính | Nhánh Git |
 | --- | --- | --- |
-| **Member 1 (Leader — Minh, MSSV: 22010009)** | Firebase Auth, Quản lý Ví (`Wallet`), Tầng ORM Firestore (`lib/data/firestore/`), Design System | `feature/leader-auth-wallet-b` |
-| **Member 2 (Hải Đăng, MSSV: 24100454)** | Quản lý Giao dịch (`Transaction`), Danh mục (`Category`) trên Firestore | `feature/member2-transaction-category` |
-| **Member 3 (Manx-bit)** | Quản lý Ngân sách (`Budget`), Báo cáo & Biểu đồ (`Analytics`) trên Firestore | `feature/member3-budget-analytics` |
+| **Member 1 (Leader — Minh, MSSV: 22010009)** | Firebase Auth, Quản lý Ví (`Wallet`), Tầng ORM Firestore (`lib/data/firestore/`), Design System | `feature/leader-auth-wallet-v2` |
+| **Member 2 (Hải Đăng, MSSV: 24100454)** | Quản lý Giao dịch (`Transaction`), Danh mục (`Category`) trên Firestore | `feature/member2-transaction-category-v2` |
+| **Member 3 (Đinh Đức Thịnh, MSSV: 24100005)** | Quản lý Ngân sách (`Budget`), Báo cáo & Biểu đồ (`Analytics`) trên Firestore | `feature/member3-budget-analytics-v2` |
 
 > 📖 **Tài liệu bắt buộc cho thành viên:**
 > - [docs/Huong-Dan-Firestore-Cho-Member.md](docs/Huong-Dan-Firestore-Cho-Member.md) — Hướng dẫn công nghệ Firebase + Firestore + Riverpod + Design System.
