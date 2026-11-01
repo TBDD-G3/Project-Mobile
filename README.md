@@ -6,25 +6,29 @@
 
 ## 📋 Trả lời Câu 1 – Câu 10
 
-### Câu 1 — User stories (15/15 đã hoàn thành)
+### Câu 1 — User stories (21/21 đã hoàn thành)
 
-| Mã | Vai trò | Hành động | Giá trị |
-| --- | --- | --- | --- |
-| US01 | Khách | Đăng ký tài khoản bằng email và mật khẩu | Dùng được ứng dụng ngay, không cần chờ duyệt |
-| US02 | Người dùng | Đăng nhập bằng email và mật khẩu | Vào được dữ liệu tài chính của mình |
-| US03 | Người dùng | Yêu cầu gửi email đặt lại mật khẩu | Lấy lại tài khoản khi quên mật khẩu |
-| US04 | Người dùng | Đăng xuất khỏi ứng dụng | Bảo vệ dữ liệu khi dùng máy chung |
-| US05 | Người dùng | Tạo ví với tên, loại và số dư ban đầu | Tách tiền mặt, ngân hàng, ví điện tử |
-| US06 | Người dùng | Sửa tên hoặc xoá ví không còn dùng | Danh sách ví giữ đúng thực tế |
-| US07 | Người dùng | Thêm giao dịch thu/chi kèm danh mục, ghi chú | Ghi lại mọi khoản phát sinh trong ngày |
-| US08 | Người dùng | Sửa một giao dịch đã ghi | Chữa được lỗi nhập sai số tiền |
-| US09 | Người dùng | Xoá một giao dịch đã ghi | Bỏ được giao dịch trùng hoặc ghi nhầm |
-| US10 | Người dùng | Xem danh sách giao dịch theo từng tháng | Đối chiếu được chi tiêu của tháng |
-| US11 | Người dùng | Lọc giao dịch theo danh mục và loại | Tìm nhanh khoản cần kiểm tra |
-| US12 | Người dùng | Tạo danh mục chi tiêu riêng | Phân loại theo cách chi tiêu của mình |
-| US13 | Người dùng | Đặt hạn mức chi tiêu tháng cho một danh mục | Kiểm soát được khoản dễ vượt nhất |
-| US14 | Người dùng | Nhận cảnh báo khi chi gần hoặc vượt hạn mức | Điều chỉnh chi tiêu trước khi hết tháng |
-| US15 | Người dùng | Xem biểu đồ thu chi theo danh mục và theo tháng | Thấy được thói quen chi tiêu của mình |
+1. Là khách, tôi có thể đăng ký tài khoản bằng email.
+2. Là người dùng, tôi có thể đăng nhập bằng email và mật khẩu.
+3. Là người dùng, tôi có thể yêu cầu gửi email đặt lại mật khẩu.
+4. Là người dùng, tôi có thể đăng xuất khỏi ứng dụng.
+5. Là người dùng, tôi có thể tạo ví mới.
+6. Là người dùng, tôi có thể đổi tên ví.
+7. Là người dùng, tôi có thể xoá ví.
+8. Là người dùng, tôi có thể xem tổng số dư của tất cả ví.
+9. Là người dùng, tôi có thể thêm giao dịch chi.
+10. Là người dùng, tôi có thể thêm giao dịch thu.
+11. Là người dùng, tôi có thể thêm giao dịch chuyển khoản giữa hai ví.
+12. Là người dùng, tôi có thể sửa giao dịch đã ghi.
+13. Là người dùng, tôi có thể xoá giao dịch đã ghi.
+14. Là người dùng, tôi có thể xem giao dịch theo tháng.
+15. Là người dùng, tôi có thể lọc giao dịch theo danh mục.
+16. Là người dùng, tôi có thể lọc giao dịch theo loại.
+17. Là người dùng, tôi có thể tạo danh mục mới.
+18. Là người dùng, tôi có thể đặt hạn mức chi tiêu tháng cho một danh mục.
+19. Là người dùng, tôi có thể nhận cảnh báo khi chi vượt hạn mức.
+20. Là người dùng, tôi có thể xem biểu đồ chi tiêu theo danh mục.
+21. Là người dùng, tôi có thể xem biểu đồ thu chi sáu tháng.
 
 Chi tiết đầy đủ: [docs/Cau-1-2-Phan-Tich-Yeu-Cau.md](docs/Cau-1-2-Phan-Tich-Yeu-Cau.md).
 
@@ -200,7 +204,35 @@ Sơ đồ đầy đủ (kèm sơ đồ điều hướng): [docs/Cau-3-So-Do.md](
 | Báo cáo | bộ chọn tháng, 3 thẻ tổng, biểu đồ tròn có chú giải, biểu đồ cột 6 tháng | Đổi tháng thì số liệu và biểu đồ đổi theo |
 | Phiên Đấu Giá | thanh tiêu đề, ảnh sản phẩm, thẻ mã phiên, đồng hồ đếm ngược, bảng lịch sử giá, nút Đặt Giá Nhanh | Bấm đặt giá → giá tăng 100.000, thêm dòng "Bạn"; đồng hồ chạy đến khi hết giờ |
 
-Bản vẽ wireframe (7 ảnh) nằm trong báo cáo ở Chương 3.
+**Bản vẽ wireframe (7 màn):**
+
+![Wireframe màn đăng nhập và đăng ký](docs/wireframes/01-dang-nhap.png)
+
+*Hình 1. Màn đăng nhập và đăng ký*
+
+![Wireframe màn tổng quan danh sách ví](docs/wireframes/02-tong-quan.png)
+
+*Hình 2. Tổng quan danh sách ví*
+
+![Wireframe màn thêm giao dịch](docs/wireframes/03-them-giao-dich.png)
+
+*Hình 3. Thêm giao dịch*
+
+![Wireframe màn danh sách giao dịch](docs/wireframes/04-danh-sach-giao-dich.png)
+
+*Hình 4. Danh sách giao dịch theo tháng*
+
+![Wireframe màn ngân sách có cảnh báo vượt](docs/wireframes/05-ngan-sach.png)
+
+*Hình 5. Ngân sách có cảnh báo vượt hạn mức*
+
+![Wireframe màn báo cáo và biểu đồ](docs/wireframes/06-bao-cao.png)
+
+*Hình 6. Báo cáo và biểu đồ*
+
+![Wireframe màn hồ sơ và đăng xuất](docs/wireframes/07-ho-so.png)
+
+*Hình 7. Hồ sơ và đăng xuất*
 
 ### Câu 5 — Màn hình mẫu do giáo viên yêu cầu
 
@@ -213,16 +245,17 @@ Màn **Phiên Đấu Giá** dựng theo ảnh mẫu, trong `lib/features/auction
 
 ### Câu 6 — Code và logic user story
 
-Kiến trúc ba lớp: **UI → Provider (Riverpod) → Repository → Firestore**. Mỗi feature nằm trong `lib/features/<tên>/`.
+Kiến trúc ba lớp: **UI → Provider (Riverpod) → Repository → Firestore**. Mỗi feature nằm trong `lib/features/<tên>/`. Số hiệu story khớp với danh sách ở Câu 1 (21 story).
 
-| Story | Màn hình | Tệp xử lý chính |
-| --- | --- | --- |
-| US01–US04 | Login, Register, Account | `features/auth/data/auth_service.dart`, `features/auth/providers/auth_providers.dart` |
-| US05–US06 | Ví tiền | `features/wallet/data/repositories/firestore_wallet_repository.dart`, `features/wallet/presentation/wallets_screen.dart` |
-| US07–US11 | Giao dịch | `features/transaction/data/repositories/firestore_transaction_repository.dart`, `features/transaction/presentation/add_edit_transaction_sheet.dart`, `transaction_filter.dart` |
-| US12 | Danh mục | `features/category/data/repositories/firestore_category_repository.dart`, `features/category/presentation/categories_screen.dart` |
-| US13–US14 | Ngân sách | `features/budget/data/repositories/firestore_budget_repository.dart`, `features/budget/data/budget_progress.dart`, `features/budget/presentation/budgets_screen.dart` |
-| US15 | Báo cáo | `features/analytics/providers/analytics_providers.dart`, `features/analytics/presentation/analytics_screen.dart` |
+| Story | Nhóm chức năng | Màn hình | Tệp xử lý chính |
+| --- | --- | --- | --- |
+| US01–US04 | Xác thực và tài khoản | Login, Register, Account | `features/auth/data/auth_service.dart`, `features/auth/providers/auth_providers.dart` |
+| US05–US08 | Quản lý ví và tổng số dư | WalletsScreen, AddEditWalletSheet | `features/wallet/data/repositories/firestore_wallet_repository.dart`, `features/wallet/presentation/wallets_screen.dart` |
+| US09–US14 | Giao dịch thu, chi, chuyển khoản | TransactionsScreen, AddEditTransactionSheet | `features/transaction/data/repositories/firestore_transaction_repository.dart`, `features/transaction/presentation/add_edit_transaction_sheet.dart` |
+| US15–US16 | Lọc giao dịch theo danh mục và loại | TransactionsScreen | `features/transaction/providers/transaction_filter.dart` |
+| US17 | Danh mục | CategoriesScreen | `features/category/data/repositories/firestore_category_repository.dart`, `features/category/presentation/categories_screen.dart` |
+| US18–US19 | Ngân sách và cảnh báo vượt hạn mức | BudgetsScreen, BudgetDetailScreen | `features/budget/data/repositories/firestore_budget_repository.dart`, `features/budget/data/budget_progress.dart` |
+| US20–US21 | Báo cáo và biểu đồ | AnalyticsScreen | `features/analytics/providers/analytics_providers.dart`, `features/analytics/presentation/analytics_screen.dart` |
 
 ### Câu 7 — Kết nối CSDL và ORM với Document Firebase
 
@@ -267,7 +300,7 @@ CollectionReference<Wallet> walletsCollection(FirebaseFirestore db) {
 | `test/widget_test.dart` | Smoke test toàn app | 1 |
 
 - **8a — bắt lỗi:** validator form (email, mật khẩu, số tiền, tên ví, hạn mức) + `try/catch` quanh mọi lệnh Firestore + Security Rules.
-- **8b — unit test:** 8 tệp logic (78 test) phủ ORM, repository, provider.
+- **8b — unit test:** 7 tệp logic (78 test) phủ ORM, repository, provider.
 - **8c — kiểm thử toàn app:** smoke test dựng cả ứng dụng; 27 widget test cho màn hình.
 - **8d — ca lỗi / thành công:** bảng 16 kịch bản trong báo cáo Chương 5 (sai mật khẩu, email sai định dạng, số dư âm, mất mạng, vượt hạn mức…).
 - **8e — kiểm thử giao diện:** chụp 7 màn trên Chrome 430×932, đối chiếu design system xanh lá.
@@ -296,7 +329,7 @@ CollectionReference<Wallet> walletsCollection(FirebaseFirestore db) {
 | Pham Hai Dang (Phạm Hải Đăng) | 10 | `feature/member2-transaction-category-v2` |
 | Đinh Đức Thịnh | 5 | `feature/member3-budget-analytics-v2` |
 
-Commit theo format `feat(scope): mô tả`, mỗi tính năng một commit; nhánh cũ thời Drift được lưu bằng tag `archive/*-drift-2026-09` để giữ lịch sử. Điểm chuyên cần tính theo các buổi thảo luận đầu giờ trên lớp.
+Commit theo format `feat(scope): mô tả`, mỗi tính năng một commit; nhánh Drift cũ của Member 3 được lưu bằng tag `archive/member3-drift-2026-09`, nhánh cũ của Member 2 vẫn giữ nguyên trên GitHub. Điểm chuyên cần tính theo các buổi thảo luận đầu giờ trên lớp.
 
 ---
 
@@ -321,7 +354,7 @@ Commit theo format `feat(scope): mô tả`, mỗi tính năng một commit; nhá
 ```bash
 git fetch origin
 git checkout develop
-git reset --hard origin/develop
+git pull --ff-only origin develop   # nếu đang có thay đổi chưa commit, commit hoặc stash trước
 
 # Tạo nhánh làm việc mới từ develop sạch (KHÔNG dùng -B, không ghi đè nhánh cũ):
 # Dành cho Member 2:
@@ -350,26 +383,30 @@ flutter test
 
 ```text
 lib/
-├── core/                  # Màu sắc (AppColors), Theme Agoda, Firebase Providers, Widgets dùng chung
+├── core/                  # AppColors, theme xanh lá, Firebase providers, widget dùng chung
 ├── data/
 │   └── firestore/         # Tầng ORM với Documents của Firebase Firestore (Câu 7)
 │       ├── firestore_collections.dart # CollectionReference<T> gắn sẵn withConverter
 │       ├── models/        # 5 đối tượng ORM: AppUser, Wallet, Category, Transaction, Budget
-│       └── seed/          # InitialSeeder (13 danh mục thu/chi mặc định idempotent)
+│       └── seed/          # InitialSeeder (13 danh mục thu/chi mặc định, idempotent)
 ├── entities/              # Lớp Generic và các Model kế thừa tổng quát hóa (OOP)
 │   ├── Genericclass.dart  # Lớp Genericclass<T> chuẩn bài giảng
 │   ├── generic_class.dart # Export chuẩn snake_case
 │   └── project_models.dart# WalletModel, CategoryModel, TransactionModel, BudgetModel
-├── features/              # Phân chia theo từng tính năng (3 lớp: Data -> Providers -> Presentation)
-│   ├── auth/              # Đăng nhập, Đăng ký, Quên mật khẩu, AuthGate (Leader)
-│   ├── wallet/            # Quản lý ví & số dư trên Firestore + Mock (Leader)
-│   ├── category/          # Quản lý danh mục thu/chi (Member 2)
-│   ├── transaction/       # Ghi chép giao dịch thu/chi/chuyển khoản (Member 2)
-│   ├── budget/            # Hạn mức ngân sách theo tháng (Member 3)
-│   ├── analytics/         # Thống kê & Biểu đồ fl_chart (Member 3)
-│   ├── main_nav/          # Shell điều hướng chính (BubbleBottomNav 4 tab + BalanceChip)
-│   └── generics_demo/     # Giao diện minh họa Generics Output
-└── expense.dart           # Đối tượng Expense viết lại kế thừa Genericclass<Object>
+├── features/              # Mỗi feature 3 lớp: Data → Providers → Presentation
+│   ├── auth/              # Đăng nhập, Đăng ký, Quên mật khẩu, AuthGate, màn Tài khoản
+│   ├── wallet/            # Quản lý ví và số dư trên Firestore + Mock
+│   ├── category/          # Danh mục thu/chi
+│   ├── transaction/       # Giao dịch thu/chi/chuyển khoản và bộ lọc
+│   ├── budget/            # Hạn mức tháng, tiến độ và cảnh báo
+│   ├── analytics/         # Báo cáo và biểu đồ fl_chart
+│   ├── auction/           # Màn hình Phiên Đấu Giá (Câu 5)
+│   ├── main_nav/          # Shell 5 tab, bottom nav có icon
+│   └── generics_demo/     # Màn minh họa Generics Output
+└── expense.dart           # Expense kế thừa Genericclass<Object>
+
+test/                      # 105 test: ORM, repository, provider, widget
+docs/                      # Tài liệu Câu 1–10, wireframe, hướng dẫn thành viên
 ```
 
 ---
