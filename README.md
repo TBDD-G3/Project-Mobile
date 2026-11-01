@@ -309,7 +309,7 @@ CollectionReference<Wallet> walletsCollection(FirebaseFirestore db) {
 
 **Báo cáo** gồm 8 chương: giới thiệu, phân tích yêu cầu, thiết kế, cài đặt, kiểm thử, đạo đức – quyền riêng tư, kết luận, phân công – đóng góp. Bản PDF và bản in nộp theo quy định (Canvas và phòng 2310).
 
-**Video demo:** _cập nhật trước khi nộp_ (dưới 8 phút).
+**Video demo:** https://drive.google.com/file/d/1XEXrjKYqCtqPzEfDzv4hWF5rGCuteXlu/view?usp=drive_link (dưới 8 phút).
 
 **Đóng góp:**
 
