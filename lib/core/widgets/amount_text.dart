@@ -6,7 +6,7 @@ import '../utils/formatters.dart';
 enum AmountKind { income, expense, transfer }
 
 /// Hiện số tiền kèm dấu +/− và màu theo loại.
-/// Nhớ đặt trên nền trắng, đừng đặt lên nền pastel.
+/// Nhớ đặt trên nền trắng hoặc nền trung tính, đừng đặt lên nền màu đậm.
 class AmountText extends StatelessWidget {
   final double amount;
   final AmountKind kind;

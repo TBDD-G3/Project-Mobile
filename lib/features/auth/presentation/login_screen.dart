@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart' as fa;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/primary_button.dart';
-import '../../auction/presentation/auction_session_screen.dart';
 import '../providers/auth_providers.dart';
 import 'register_screen.dart';
 
@@ -24,9 +25,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _obscurePassword = true;
   bool _loading = false;
   bool _resettingPassword = false;
+  int _resetCooldown = 0;
+  Timer? _cooldownTimer;
+
+  /// Kiểm tra định dạng email ngay trên client trước khi gọi Firebase.
+  static final RegExp _emailPattern = RegExp(r'^[\w.+-]+@[\w-]+\.[\w.-]+$');
 
   @override
   void dispose() {
+    _cooldownTimer?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -36,7 +43,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
-      await ref.read(authServiceProvider).signIn(
+      await ref
+          .read(authServiceProvider)
+          .signIn(
             email: _emailController.text.trim(),
             password: _passwordController.text,
           );
@@ -51,15 +60,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _forgotPassword() async {
+    if (_resettingPassword || _resetCooldown > 0) return;
+
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       _showError('Nhập email trước để đặt lại mật khẩu.');
       return;
     }
+    if (!_emailPattern.hasMatch(email)) {
+      _showError('Email không hợp lệ.');
+      return;
+    }
+
     setState(() => _resettingPassword = true);
     try {
       await ref.read(authServiceProvider).sendPasswordReset(email);
-      _showError('Đã gửi email đặt lại mật khẩu. Kiểm tra hộp thư của bạn.');
+      _startResetCooldown();
+      _showError(
+        'Nếu email này đã đăng ký, bạn sẽ nhận được thư đặt lại mật khẩu '
+        'trong vài phút. Nhớ kiểm tra cả hộp thư Spam.',
+      );
     } on fa.FirebaseAuthException catch (e) {
       _showError(_authErrorMessage(e));
     } catch (e) {
@@ -67,6 +87,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } finally {
       if (mounted) setState(() => _resettingPassword = false);
     }
+  }
+
+  /// Khoá nút Quên mật khẩu 60 giây sau khi gửi, tránh đốt quota mail.
+  void _startResetCooldown() {
+    _cooldownTimer?.cancel();
+    setState(() => _resetCooldown = 60);
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() => _resetCooldown--);
+      if (_resetCooldown <= 0) timer.cancel();
+    });
   }
 
   String _authErrorMessage(fa.FirebaseAuthException e) {
@@ -108,7 +142,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 72,
                       height: 72,
                       decoration: BoxDecoration(
-                        color: AppColors.pastelBudget,
+                        color: AppColors.primarySoft,
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: const Icon(
@@ -196,15 +230,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: InkWell(
-                        onTap: _resettingPassword ? null : _forgotPassword,
+                        onTap: (_resettingPassword || _resetCooldown > 0)
+                            ? null
+                            : _forgotPassword,
                         child: Text(
-                          'Quên mật khẩu?',
+                          _resetCooldown > 0
+                              ? 'Gửi lại sau ${_resetCooldown}s'
+                              : 'Quên mật khẩu?',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: _resettingPassword
+                            color: (_resettingPassword || _resetCooldown > 0)
                                 ? AppColors.textLight
-                                : AppColors.primaryLink,
+                                : AppColors.primary,
                           ),
                         ),
                       ),
@@ -246,28 +284,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const AuctionSessionScreen(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.gavel_outlined, size: 18),
-                        label: const Text(
-                          'Màn hình Phiên Đấu Giá (Câu 5)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
                       ),
                     ),
                   ],

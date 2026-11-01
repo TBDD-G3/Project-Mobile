@@ -30,10 +30,9 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: AppColors.cardBackground,
-        elevation: 0,
+        elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppColors.radiusCard),
-          side: const BorderSide(color: AppColors.hairline),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
